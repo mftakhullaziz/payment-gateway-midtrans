@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/payment_midtrans
+    username: root
+    password: Codespace
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
+      idle-timeout: 300000
+      minimum-idle: 2
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        # dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.MySQLDialect
+        storage_engine: innodb  # Set the storage engine to InnoDB
+    open-in-view: false
+
+application:
+  payment-gateway:
+    midtrans:
+      merchant-id: G122340993
+      client-key: SB-Mid-client-IkH9QUB3A8t8WLLk
+      server-key: SB-Mid-server-9D9fBs9eVq_N9WFk0ZOZebEO
+      payment-uri: "https://api.sandbox.midtrans.com/v2/charge"
