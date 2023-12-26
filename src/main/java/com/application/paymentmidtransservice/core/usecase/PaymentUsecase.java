@@ -1,4 +1,4 @@
-package com.application.paymentmidtransservice.deliver.usecase;
+package com.application.paymentmidtransservice.core.usecase;
 
 import com.application.paymentmidtransservice.domain.request.PaymentRequest;
 import com.application.paymentmidtransservice.domain.response.PaymentResponse;

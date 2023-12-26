@@ -1,6 +1,6 @@
-package com.application.paymentmidtransservice.deliver.rest;
+package com.application.paymentmidtransservice.controller;
 
-import com.application.paymentmidtransservice.deliver.usecase.PaymentUsecase;
+import com.application.paymentmidtransservice.core.usecase.PaymentUsecase;
 import com.application.paymentmidtransservice.domain.request.PaymentRequest;
 import com.application.paymentmidtransservice.domain.response.PaymentResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "Payments")
 @RequiredArgsConstructor
-public class PaymentRest {
+public class PaymentController {
 
     private final PaymentUsecase paymentUsecase;
 
