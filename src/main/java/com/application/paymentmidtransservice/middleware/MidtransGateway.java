@@ -1,7 +1,7 @@
 package com.application.paymentmidtransservice.middleware;
 
-import com.application.paymentmidtransservice.domain.dto.PaymentDto;
+import com.application.paymentmidtransservice.domain.dto.PaymentMidtransDto;
 
 public interface MidtransGateway {
-    PaymentMidtransResponse executePaymentMidtrans(PaymentDto paymentDto);
+    PaymentMidtransResponse executePaymentMidtrans(PaymentMidtransDto paymentMidtransDto);
 }

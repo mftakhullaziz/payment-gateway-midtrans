@@ -3,7 +3,7 @@ package com.application.paymentmidtransservice.middleware;
 import com.application.paymentmidtransservice.config.PaymentConfig;
 import com.application.paymentmidtransservice.domain.BankType;
 import com.application.paymentmidtransservice.domain.PaymentTypes;
-import com.application.paymentmidtransservice.domain.dto.PaymentDto;
+import com.application.paymentmidtransservice.domain.dto.PaymentMidtransDto;
 import com.application.paymentmidtransservice.domain.dto.VirtualAccountBCADto;
 import com.application.paymentmidtransservice.util.Base64Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,20 +22,19 @@ import org.springframework.web.client.RestClient;
 public class MidtransGatewayImpl implements MidtransGateway {
 
     private final PaymentConfig paymentConfig;
-    private final RestClient restClient = RestClient.create();
 
     @SneakyThrows
     @Override
-    public PaymentMidtransResponse executePaymentMidtrans(PaymentDto paymentDto) {
-        PaymentTypes paymentTypes = paymentDto.getPaymentTypes();
+    public PaymentMidtransResponse executePaymentMidtrans(PaymentMidtransDto paymentMidtransDto) {
+        PaymentTypes paymentTypes = paymentMidtransDto.getPaymentTypes();
         return switch (paymentTypes) {
-            case BANK_TRANSFER -> executeInvokeMidtrans(buildRequestBodyBankTransfer(paymentDto));
-            case CREDIT_CARD -> executeInvokeMidtrans(buildRequestBodyCreditCard(paymentDto));
+            case BANK_TRANSFER -> executeInvokeMidtrans(buildRequestBodyBankTransfer(paymentMidtransDto));
+            case CREDIT_CARD -> executeInvokeMidtrans(buildRequestBodyCreditCard(paymentMidtransDto));
             default -> throw new RuntimeException("not found");
         };
     }
 
-    private Object buildRequestBodyCreditCard(PaymentDto paymentDto) {
+    private Object buildRequestBodyCreditCard(PaymentMidtransDto paymentMidtransDto) {
         return null;
     }
 
@@ -48,6 +47,7 @@ public class MidtransGatewayImpl implements MidtransGateway {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + serverKeyEncode);
 
+        RestClient restClient = RestClient.create();
         ResponseEntity<Object> responseEntity = restClient.post()
             .uri(paymentConfig.getMidtrans().getPaymentUri())
             .contentType(MediaType.APPLICATION_JSON)
@@ -81,7 +81,7 @@ public class MidtransGatewayImpl implements MidtransGateway {
         return objectMapper.treeToValue(jsonNode, PaymentMidtransResponse.class);
     }
 
-    private Object buildRequestBodyBankTransfer(PaymentDto requestBody) {
+    private Object buildRequestBodyBankTransfer(PaymentMidtransDto requestBody) {
         BankType bankType = requestBody.getBankType();
         return switch (bankType) {
             case BCA -> buildRequestBodyVaBca(requestBody);
@@ -90,13 +90,13 @@ public class MidtransGatewayImpl implements MidtransGateway {
         };
     }
 
-    private Object buildRequestBodyVaBca(PaymentDto paymentDto) {
+    private Object buildRequestBodyVaBca(PaymentMidtransDto paymentMidtransDto) {
         return VirtualAccountBCADto.builder()
-            .paymentType(paymentDto.getPaymentTypes().toString().toLowerCase())
-            .bankTransfer(new VirtualAccountBCADto.BankTransfer(paymentDto.getBankType().toString().toLowerCase()))
+            .paymentType(paymentMidtransDto.getPaymentTypes().toString().toLowerCase())
+            .bankTransfer(new VirtualAccountBCADto.BankTransfer(paymentMidtransDto.getBankType().toString().toLowerCase()))
             .transactionDetails(new VirtualAccountBCADto.TransactionDetails(
-                paymentDto.getOrderId(),
-                paymentDto.getTotalPrice().intValue()
+                paymentMidtransDto.getOrderId(),
+                paymentMidtransDto.getTotalPrice().intValue()
             ))
             .build();
     }
