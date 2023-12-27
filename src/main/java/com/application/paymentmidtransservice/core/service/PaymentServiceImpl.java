@@ -17,8 +17,47 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentDto savePaymentTransaction(CreatePaymentRequest createPaymentRequest) {
-        PaymentEntity savePayment = new PaymentEntity();
-        PaymentEntity paymentEntity = paymentRepository.saveAndFlush(savePayment);
-        return null;
+        PaymentEntity paymentData = new PaymentEntity();
+        paymentData.setOrderId(createPaymentRequest.getOrderId());
+        paymentData.setTransactionId(createPaymentRequest.getTransactionId());
+        paymentData.setMerchantId(createPaymentRequest.getMerchantId());
+        paymentData.setGrossAmount(createPaymentRequest.getGrossAmount());
+        paymentData.setCurrency(createPaymentRequest.getCurrency());
+        paymentData.setTransactionTime(createPaymentRequest.getTransactionTime());
+        paymentData.setTransactionStatus(createPaymentRequest.getTransactionStatus());
+        paymentData.setExpiryTime(createPaymentRequest.getExpiryTime());
+        paymentData.setFraudStatus(createPaymentRequest.getFraudStatus());
+        paymentData.setPaymentType(createPaymentRequest.getPaymentType());
+        paymentData.setPaymentMethod(createPaymentRequest.getPaymentMethod());
+        paymentData.setPaymentVaNumbers(createPaymentRequest.getPaymentVaNumbers());
+        paymentData.setTotalPrice(createPaymentRequest.getTotalPrice());
+        paymentData.setTotalTax(createPaymentRequest.getTotalTax());
+        paymentData.setTotalDiscount(createPaymentRequest.getTotalDiscount());
+        paymentData.setUserId(createPaymentRequest.getUserId());
+
+        PaymentEntity paymentEntity = paymentRepository.saveAndFlush(paymentData);
+        return getPaymentDto(paymentEntity);
+    }
+
+    private static PaymentDto getPaymentDto(PaymentEntity paymentEntity) {
+        PaymentDto paymentDto = new PaymentDto();
+        paymentDto.setPaymentId(paymentEntity.getPaymentId());
+        paymentDto.setUserId(paymentEntity.getUserId());
+        paymentDto.setOrderId(paymentEntity.getOrderId());
+        paymentDto.setTransactionId(paymentEntity.getTransactionId());
+        paymentDto.setMerchantId(paymentEntity.getMerchantId());
+        paymentDto.setGrossAmount(paymentEntity.getGrossAmount());
+        paymentDto.setCurrency(paymentEntity.getCurrency());
+        paymentDto.setTransactionTime(paymentEntity.getTransactionTime());
+        paymentDto.setTransactionStatus(paymentEntity.getTransactionStatus());
+        paymentDto.setExpiryTime(paymentEntity.getExpiryTime());
+        paymentDto.setFraudStatus(paymentEntity.getFraudStatus());
+        paymentDto.setPaymentType(paymentEntity.getPaymentType());
+        paymentDto.setPaymentMethod(paymentEntity.getPaymentMethod());
+        paymentDto.setPaymentVaNumbers(paymentEntity.getPaymentVaNumbers());
+        paymentDto.setTotalPrice(paymentEntity.getTotalPrice());
+        paymentDto.setTotalTax(paymentEntity.getTotalTax());
+        paymentDto.setTotalDiscount(paymentEntity.getTotalDiscount());
+        return paymentDto;
     }
 }

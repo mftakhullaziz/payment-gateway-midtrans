@@ -1,6 +1,7 @@
 package com.application.paymentmidtransservice.core.usecase;
 
 import com.application.paymentmidtransservice.core.service.PaymentService;
+import com.application.paymentmidtransservice.domain.PaymentTypes;
 import com.application.paymentmidtransservice.domain.dto.PaymentDto;
 import com.application.paymentmidtransservice.domain.dto.PaymentMidtransDto;
 import com.application.paymentmidtransservice.domain.request.CreatePaymentRequest;
@@ -25,8 +26,21 @@ public class PaymentUsecaseImpl implements PaymentUsecase {
     @Override
     public PaymentResponse executePaymentTransaction(PaymentRequest paymentRequest) {
         PaymentMidtransDto paymentMidtransDto = paymentDtoMapper(paymentRequest);
-        PaymentMidtransResponse midtransResponse = midtransGateway.executePaymentMidtrans(paymentMidtransDto);
 
+        PaymentTypes paymentTypes = paymentMidtransDto.getPaymentTypes();
+        PaymentMidtransResponse midtransResponse;
+        switch (paymentTypes) {
+            case BANK_TRANSFER -> midtransResponse = midtransGateway.executePayMidtransBankTransfer(paymentMidtransDto);
+            case CREDIT_CARD -> midtransResponse = midtransGateway.executePayMidtransCreditCard(paymentMidtransDto);
+            default -> throw new RuntimeException("not found");
+        }
+
+        CreatePaymentRequest createPaymentRequest = createPaymentRequests(paymentRequest, midtransResponse);
+        PaymentDto paymentDto = paymentService.savePaymentTransaction(createPaymentRequest);
+        return getPayments(paymentDto);
+    }
+
+    private static CreatePaymentRequest createPaymentRequests(PaymentRequest paymentRequest, PaymentMidtransResponse midtransResponse) {
         CreatePaymentRequest createPaymentRequest = new CreatePaymentRequest();
         createPaymentRequest.setTransactionId(midtransResponse.getTransactionId());
         createPaymentRequest.setTransactionTime(Timestamp.valueOf(midtransResponse.getTransactionTime()));
@@ -43,10 +57,30 @@ public class PaymentUsecaseImpl implements PaymentUsecase {
         createPaymentRequest.setTotalPrice(paymentRequest.getTotalPrice());
         createPaymentRequest.setTotalTax(paymentRequest.getTotalTax());
         createPaymentRequest.setTotalDiscount(paymentRequest.getTotalDiscount());
+        createPaymentRequest.setUserId(paymentRequest.getUsersInfo().getUserId());
+        return createPaymentRequest;
+    }
 
-        PaymentDto paymentDto = paymentService.savePaymentTransaction(createPaymentRequest);
-
-        return null;
+    private static PaymentResponse getPayments(PaymentDto paymentEntity) {
+        PaymentResponse paymentDto = new PaymentResponse();
+        paymentDto.setPaymentId(paymentEntity.getPaymentId());
+        paymentDto.setUserId(paymentEntity.getUserId());
+        paymentDto.setOrderId(paymentEntity.getOrderId());
+        paymentDto.setTransactionId(paymentEntity.getTransactionId());
+        paymentDto.setMerchantId(paymentEntity.getMerchantId());
+        paymentDto.setGrossAmount(paymentEntity.getGrossAmount());
+        paymentDto.setCurrency(paymentEntity.getCurrency());
+        paymentDto.setTransactionTime(paymentEntity.getTransactionTime());
+        paymentDto.setTransactionStatus(paymentEntity.getTransactionStatus());
+        paymentDto.setExpiryTime(paymentEntity.getExpiryTime());
+        paymentDto.setFraudStatus(paymentEntity.getFraudStatus());
+        paymentDto.setPaymentType(paymentEntity.getPaymentType());
+        paymentDto.setPaymentMethod(paymentEntity.getPaymentMethod());
+        paymentDto.setPaymentVaNumbers(paymentEntity.getPaymentVaNumbers());
+        paymentDto.setTotalPrice(paymentEntity.getTotalPrice());
+        paymentDto.setTotalTax(paymentEntity.getTotalTax());
+        paymentDto.setTotalDiscount(paymentEntity.getTotalDiscount());
+        return paymentDto;
     }
 
     private PaymentMidtransDto paymentDtoMapper(PaymentRequest request) {

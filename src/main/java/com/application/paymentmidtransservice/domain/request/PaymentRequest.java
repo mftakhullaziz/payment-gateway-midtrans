@@ -46,7 +46,7 @@ public class PaymentRequest {
     @NoArgsConstructor
     public static class UsersInfo {
         @JsonProperty(value = "user_id")
-        private String userId;
+        private Integer userId;
 
         @JsonProperty(value = "email")
         private String email;

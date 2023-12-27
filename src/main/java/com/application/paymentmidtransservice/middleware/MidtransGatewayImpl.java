@@ -25,13 +25,34 @@ public class MidtransGatewayImpl implements MidtransGateway {
 
     @SneakyThrows
     @Override
-    public PaymentMidtransResponse executePaymentMidtrans(PaymentMidtransDto paymentMidtransDto) {
-        PaymentTypes paymentTypes = paymentMidtransDto.getPaymentTypes();
-        return switch (paymentTypes) {
-            case BANK_TRANSFER -> executeInvokeMidtrans(buildRequestBodyBankTransfer(paymentMidtransDto));
-            case CREDIT_CARD -> executeInvokeMidtrans(buildRequestBodyCreditCard(paymentMidtransDto));
-            default -> throw new RuntimeException("not found");
-        };
+    public PaymentMidtransResponse executePayMidtransBankTransfer(PaymentMidtransDto paymentMidtransDto) {
+//        PaymentTypes paymentTypes = paymentMidtransDto.getPaymentTypes();
+//        return switch (paymentTypes) {
+//            case BANK_TRANSFER -> executeInvokeMidtrans(buildRequestBodyBankTransfer(paymentMidtransDto));
+//            case CREDIT_CARD -> executeInvokeMidtrans(buildRequestBodyCreditCard(paymentMidtransDto));
+//            default -> throw new RuntimeException("not found");
+//        };
+        return executeInvokeMidtrans(buildRequestBodyBankTransfer(paymentMidtransDto));
+    }
+
+    @Override
+    public PaymentMidtransResponse executePayMidtransQRISAndEWallet(PaymentMidtransDto paymentMidtransDto) {
+        return null;
+    }
+
+    @Override
+    public PaymentMidtransResponse executePayMidtransCreditCard(PaymentMidtransDto paymentMidtransDto) {
+        return null;
+    }
+
+    @Override
+    public PaymentMidtransResponse executePayMidtransCSStore(PaymentMidtransDto paymentMidtransDto) {
+        return null;
+    }
+
+    @Override
+    public PaymentMidtransResponse executePayMidtransCardlessCredit(PaymentMidtransDto paymentMidtransDto) {
+        return null;
     }
 
     private Object buildRequestBodyCreditCard(PaymentMidtransDto paymentMidtransDto) {
@@ -43,6 +64,7 @@ public class MidtransGatewayImpl implements MidtransGateway {
             .writeValueAsString(requestBody));
 
         String serverKeyEncode = Base64Util.encodeToBase64(paymentConfig.getMidtrans().getServerKey());
+        System.out.println("Encode server key: " + serverKeyEncode);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + serverKeyEncode);

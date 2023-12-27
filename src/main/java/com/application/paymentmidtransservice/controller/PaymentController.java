@@ -2,6 +2,7 @@ package com.application.paymentmidtransservice.controller;
 
 import com.application.paymentmidtransservice.core.usecase.PaymentUsecase;
 import com.application.paymentmidtransservice.domain.request.PaymentRequest;
+import com.application.paymentmidtransservice.domain.response.DefaultResponse;
 import com.application.paymentmidtransservice.domain.response.PaymentResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,14 @@ public class PaymentController {
     private final PaymentUsecase paymentUsecase;
 
     @PostMapping(value = "payment/create-transaction")
-    public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest request) {
+    public ResponseEntity<DefaultResponse<PaymentResponse>> createPayment(@RequestBody PaymentRequest request) {
         PaymentResponse response = paymentUsecase.executePaymentTransaction(request);
-        return ResponseEntity.ok(response);
+        DefaultResponse<PaymentResponse> defaultResponse = new DefaultResponse<>();
+        defaultResponse.setData(response);
+        defaultResponse.setSuccess(true);
+        defaultResponse.setStatusCode(201);
+        defaultResponse.setMessage("create transaction successfully!");
+        return ResponseEntity.ok(defaultResponse);
     }
 
 }
