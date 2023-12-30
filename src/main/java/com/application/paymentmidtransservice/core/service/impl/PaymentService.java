@@ -1,8 +1,9 @@
-package com.application.paymentmidtransservice.core.service;
+package com.application.paymentmidtransservice.core.service.impl;
 
 import com.application.paymentmidtransservice.core.entity.PaymentEntity;
 import com.application.paymentmidtransservice.core.repository.PaymentRepository;
-import com.application.paymentmidtransservice.domain.dto.PaymentDto;
+import com.application.paymentmidtransservice.core.service.PaymentGateway;
+import com.application.paymentmidtransservice.domain.model.Payment;
 import com.application.paymentmidtransservice.domain.request.CreatePaymentRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -11,12 +12,12 @@ import org.springframework.stereotype.Service;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class PaymentServiceImpl implements PaymentService {
+public class PaymentService implements PaymentGateway {
 
     private final PaymentRepository paymentRepository;
 
     @Override
-    public PaymentDto savePaymentTransaction(CreatePaymentRequest createPaymentRequest) {
+    public Payment savePaymentTransaction(CreatePaymentRequest createPaymentRequest) {
         PaymentEntity paymentData = new PaymentEntity();
         paymentData.setOrderId(createPaymentRequest.getOrderId());
         paymentData.setTransactionId(createPaymentRequest.getTransactionId());
@@ -39,25 +40,25 @@ public class PaymentServiceImpl implements PaymentService {
         return getPaymentDto(paymentEntity);
     }
 
-    private static PaymentDto getPaymentDto(PaymentEntity paymentEntity) {
-        PaymentDto paymentDto = new PaymentDto();
-        paymentDto.setPaymentId(paymentEntity.getPaymentId());
-        paymentDto.setUserId(paymentEntity.getUserId());
-        paymentDto.setOrderId(paymentEntity.getOrderId());
-        paymentDto.setTransactionId(paymentEntity.getTransactionId());
-        paymentDto.setMerchantId(paymentEntity.getMerchantId());
-        paymentDto.setGrossAmount(paymentEntity.getGrossAmount());
-        paymentDto.setCurrency(paymentEntity.getCurrency());
-        paymentDto.setTransactionTime(paymentEntity.getTransactionTime());
-        paymentDto.setTransactionStatus(paymentEntity.getTransactionStatus());
-        paymentDto.setExpiryTime(paymentEntity.getExpiryTime());
-        paymentDto.setFraudStatus(paymentEntity.getFraudStatus());
-        paymentDto.setPaymentType(paymentEntity.getPaymentType());
-        paymentDto.setPaymentMethod(paymentEntity.getPaymentMethod());
-        paymentDto.setPaymentVaNumbers(paymentEntity.getPaymentVaNumbers());
-        paymentDto.setTotalPrice(paymentEntity.getTotalPrice());
-        paymentDto.setTotalTax(paymentEntity.getTotalTax());
-        paymentDto.setTotalDiscount(paymentEntity.getTotalDiscount());
-        return paymentDto;
+    private static Payment getPaymentDto(PaymentEntity paymentEntity) {
+        Payment payment = new Payment();
+        payment.setPaymentId(paymentEntity.getPaymentId());
+        payment.setUserId(paymentEntity.getUserId());
+        payment.setOrderId(paymentEntity.getOrderId());
+        payment.setTransactionId(paymentEntity.getTransactionId());
+        payment.setMerchantId(paymentEntity.getMerchantId());
+        payment.setGrossAmount(paymentEntity.getGrossAmount());
+        payment.setCurrency(paymentEntity.getCurrency());
+        payment.setTransactionTime(paymentEntity.getTransactionTime());
+        payment.setTransactionStatus(paymentEntity.getTransactionStatus());
+        payment.setExpiryTime(paymentEntity.getExpiryTime());
+        payment.setFraudStatus(paymentEntity.getFraudStatus());
+        payment.setPaymentType(paymentEntity.getPaymentType());
+        payment.setPaymentMethod(paymentEntity.getPaymentMethod());
+        payment.setPaymentVaNumbers(paymentEntity.getPaymentVaNumbers());
+        payment.setTotalPrice(paymentEntity.getTotalPrice());
+        payment.setTotalTax(paymentEntity.getTotalTax());
+        payment.setTotalDiscount(paymentEntity.getTotalDiscount());
+        return payment;
     }
 }

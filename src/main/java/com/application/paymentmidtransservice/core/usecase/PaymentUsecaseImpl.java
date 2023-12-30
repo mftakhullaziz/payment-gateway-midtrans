@@ -1,17 +1,20 @@
 package com.application.paymentmidtransservice.core.usecase;
 
-import com.application.paymentmidtransservice.core.service.PaymentService;
+import com.application.paymentmidtransservice.core.service.EmailGateway;
+import com.application.paymentmidtransservice.core.service.PaymentGateway;
 import com.application.paymentmidtransservice.domain.PaymentTypes;
-import com.application.paymentmidtransservice.domain.dto.PaymentDto;
-import com.application.paymentmidtransservice.domain.dto.PaymentMidtransDto;
+import com.application.paymentmidtransservice.domain.model.Payment;
+import com.application.paymentmidtransservice.domain.model.PaymentMidtrans;
 import com.application.paymentmidtransservice.domain.request.CreatePaymentRequest;
 import com.application.paymentmidtransservice.domain.request.PaymentRequest;
 import com.application.paymentmidtransservice.domain.response.PaymentResponse;
-import com.application.paymentmidtransservice.middleware.MidtransGateway;
-import com.application.paymentmidtransservice.middleware.PaymentMidtransResponse;
-import jakarta.transaction.Transactional;
+import com.application.paymentmidtransservice.core.service.MidtransGateway;
+import com.application.paymentmidtransservice.domain.response.PaymentMidtransResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.sql.Timestamp;
 
@@ -19,28 +22,56 @@ import java.sql.Timestamp;
 @RequiredArgsConstructor
 public class PaymentUsecaseImpl implements PaymentUsecase {
 
-    private final PaymentService paymentService;
+    private final PaymentGateway paymentGateway;
     private final MidtransGateway midtransGateway;
+    private final EmailGateway emailGateway;
+    private final PlatformTransactionManager transactionManager;
 
-    @Transactional
     @Override
     public PaymentResponse executePaymentTransaction(PaymentRequest paymentRequest) {
-        PaymentMidtransDto paymentMidtransDto = paymentDtoMapper(paymentRequest);
+        DefaultTransactionDefinition defaultTransactionDefinition = new DefaultTransactionDefinition();
+        defaultTransactionDefinition.setName("create-payment-transaction-by-user-id: " + paymentRequest.getUsersInfo().getUserId());
+        TransactionStatus transactionStatus = transactionManager.getTransaction(defaultTransactionDefinition);
 
-        PaymentTypes paymentTypes = paymentMidtransDto.getPaymentTypes();
-        PaymentMidtransResponse midtransResponse;
-        switch (paymentTypes) {
-            case BANK_TRANSFER -> midtransResponse = midtransGateway.executePayMidtransBankTransfer(paymentMidtransDto);
-            case CREDIT_CARD -> midtransResponse = midtransGateway.executePayMidtransCreditCard(paymentMidtransDto);
-            default -> throw new RuntimeException("not found");
+        try {
+            PaymentMidtrans paymentMidtrans = paymentDtoMapper(paymentRequest);
+
+//            Boolean userValidation = userService.validationUserByUserIdAndEmail(paymentRequest.getUserId(), paymentRequest.getEmail());
+//            if (userValidation != true) {
+//                throw new ApiResponseException(HttpStatus.BadRequest, APIError.builder.errorMessage("your parameter user-id and email not valid"));
+//            }
+
+            PaymentTypes paymentTypes = paymentMidtrans.getPaymentTypes();
+            PaymentMidtransResponse midtransResponse = createPaymentTransaction(paymentMidtrans, paymentTypes);
+
+            CreatePaymentRequest createPaymentRequest = createPaymentRequests(paymentRequest, midtransResponse);
+            Payment payment = paymentGateway.savePaymentTransaction(createPaymentRequest);
+
+            emailGateway.publishEmailNotification(paymentRequest.getUsersInfo().getEmail(), "");
+
+            // Commit transaction
+            transactionManager.commit(transactionStatus);
+
+            return getPayments(payment);
+        } catch (Exception e) {
+            transactionManager.rollback(transactionStatus);
+            throw e;
         }
-
-        CreatePaymentRequest createPaymentRequest = createPaymentRequests(paymentRequest, midtransResponse);
-        PaymentDto paymentDto = paymentService.savePaymentTransaction(createPaymentRequest);
-        return getPayments(paymentDto);
     }
 
-    private static CreatePaymentRequest createPaymentRequests(PaymentRequest paymentRequest, PaymentMidtransResponse midtransResponse) {
+    private PaymentMidtransResponse createPaymentTransaction(
+        PaymentMidtrans paymentMidtrans, PaymentTypes paymentTypes)
+    {
+        return switch (paymentTypes) {
+            case BANK_TRANSFER -> midtransGateway.executePayMidtransBankTransfer(paymentMidtrans);
+            case CREDIT_CARD -> midtransGateway.executePayMidtransCreditCard(paymentMidtrans);
+            default -> throw new RuntimeException("not found");
+        };
+    }
+
+    private static CreatePaymentRequest createPaymentRequests(
+        PaymentRequest paymentRequest, PaymentMidtransResponse midtransResponse)
+    {
         CreatePaymentRequest createPaymentRequest = new CreatePaymentRequest();
         createPaymentRequest.setTransactionId(midtransResponse.getTransactionId());
         createPaymentRequest.setTransactionTime(Timestamp.valueOf(midtransResponse.getTransactionTime()));
@@ -61,7 +92,7 @@ public class PaymentUsecaseImpl implements PaymentUsecase {
         return createPaymentRequest;
     }
 
-    private static PaymentResponse getPayments(PaymentDto paymentEntity) {
+    private static PaymentResponse getPayments(Payment paymentEntity) {
         PaymentResponse paymentDto = new PaymentResponse();
         paymentDto.setPaymentId(paymentEntity.getPaymentId());
         paymentDto.setUserId(paymentEntity.getUserId());
@@ -83,8 +114,8 @@ public class PaymentUsecaseImpl implements PaymentUsecase {
         return paymentDto;
     }
 
-    private PaymentMidtransDto paymentDtoMapper(PaymentRequest request) {
-        return PaymentMidtransDto.builder()
+    private PaymentMidtrans paymentDtoMapper(PaymentRequest request) {
+        return PaymentMidtrans.builder()
             .paymentTypes(request.getPaymentType())
             .bankType(request.getBankType())
             .orderId(request.getOrderId())

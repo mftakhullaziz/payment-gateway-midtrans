@@ -1,4 +1,4 @@
-package com.application.paymentmidtransservice.middleware;
+package com.application.paymentmidtransservice.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

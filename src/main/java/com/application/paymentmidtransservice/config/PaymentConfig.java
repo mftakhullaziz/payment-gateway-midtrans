@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@ConfigurationProperties(value = "application.payment-gateway")
+@ConfigurationProperties(value = "application.external-service.payment-gateway")
 public class PaymentConfig {
 
     private Midtrans midtrans;

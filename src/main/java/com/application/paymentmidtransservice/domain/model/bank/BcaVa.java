@@ -1,4 +1,4 @@
-package com.application.paymentmidtransservice.domain.dto;
+package com.application.paymentmidtransservice.domain.model.bank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VirtualAccountBCADto {
+public class BcaVa {
 
     @JsonProperty(value = "payment_type")
     private String paymentType;

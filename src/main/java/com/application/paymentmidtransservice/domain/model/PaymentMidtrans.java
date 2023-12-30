@@ -1,4 +1,4 @@
-package com.application.paymentmidtransservice.domain.dto;
+package com.application.paymentmidtransservice.domain.model;
 
 import com.application.paymentmidtransservice.domain.BankType;
 import com.application.paymentmidtransservice.domain.PaymentTypes;
@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaymentMidtransDto {
+public class PaymentMidtrans {
     private PaymentTypes paymentTypes;
     private BankType bankType;
     private UsersInfo usersInfo;

@@ -1,4 +1,4 @@
-package com.application.paymentmidtransservice.domain.dto;
+package com.application.paymentmidtransservice.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaymentDto {
+public class Payment {
     private Integer paymentId;
     private Integer userId;
     private String orderId;
