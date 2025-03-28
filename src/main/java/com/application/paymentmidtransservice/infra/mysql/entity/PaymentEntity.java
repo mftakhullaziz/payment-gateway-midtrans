@@ -1,4 +1,4 @@
-package com.application.paymentmidtransservice.core.entity;
+package com.application.paymentmidtransservice.infra.mysql.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -17,5 +17,18 @@ public class PaymentConfig {
         private String clientKey;
         private String serverKey;
         private String paymentUri;
+        private Disbursement disbursement;
+    }
+
+    @Data
+    public static class Disbursement {
+        private String beneficiaries;
+        private String patchBeneficiaries;
+        private String listBeneficiaries;
+        private String payouts;
+        private String approvePayouts;
+        private String rejectPayouts;
+        private String detailPayouts;
+        private String transactionDetails;
     }
 }

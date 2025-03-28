@@ -33,6 +33,16 @@ application:
         client-key: SB-Mid-client-IkH9QUB3A8t8WLLk
         server-key: SB-Mid-server-9D9fBs9eVq_N9WFk0ZOZebEO
         payment-uri: "https://api.sandbox.midtrans.com/v2/charge"
+        disbursement:
+          beneficiaries: "/api/v1/beneficiaries"
+          patch-beneficiaries: "/api/v1/beneficiaries/alias_name"
+          list-beneficiaries: "/api/v1/beneficiaries"
+          payouts: "/api/v1/payouts"
+          approve-payouts: "/api/v1/payouts/approve"
+          reject-payouts: "/api/v1/payouts/reject"
+          detail-payouts: "/api/v1/payouts/reference_no"
+          transaction-details: "/api/v1/statements"
+
     # configure for email gateway
     email-gateway:
       mail-dev:

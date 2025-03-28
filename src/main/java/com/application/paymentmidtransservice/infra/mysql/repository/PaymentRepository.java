@@ -1,6 +1,6 @@
-package com.application.paymentmidtransservice.core.repository;
+package com.application.paymentmidtransservice.infra.mysql.repository;
 
-import com.application.paymentmidtransservice.core.entity.PaymentEntity;
+import com.application.paymentmidtransservice.infra.mysql.entity.PaymentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,6 @@
 package com.application.paymentmidtransservice.config;
 
-import com.application.paymentmidtransservice.core.repository.PaymentRepository;
+import com.application.paymentmidtransservice.infra.mysql.repository.PaymentRepository;
 import com.application.paymentmidtransservice.core.service.EmailGateway;
 import com.application.paymentmidtransservice.core.service.PaymentGateway;
 import com.application.paymentmidtransservice.core.service.impl.EmailService;
@@ -16,8 +16,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.application.paymentmidtransservice.core.repository")
-@EntityScan(basePackages = "com.application.paymentmidtransservice.core.entity") // Add this line
+@EnableJpaRepositories(basePackages = "com.application.paymentmidtransservice.infra.repository")
+@EntityScan(basePackages = "com.application.paymentmidtransservice.persistence.entity") // Add this line
 public class ServiceConfig {
 
     @Bean
