@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://avnadmin:AVNS_4gVt0bTLKPSHfF_Ri2P@mysql-dev-cluster1-mftcoder-433c.e.aivencloud.com:18253/example_payment_midtrans?ssl-mode=REQUIRED
-#    username: root
-#    password: Codespace
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     hikari:
       connection-timeout: 20000
       maximum-pool-size: 5
