@@ -1,5 +1,7 @@
-package com.application.paymentmidtransservice.config;
+package com.application.paymentmidtransservice.app.config;
 
+import com.application.paymentmidtransservice.app.property.EmailProperty;
+import com.application.paymentmidtransservice.app.property.PaymentProperty;
 import com.application.paymentmidtransservice.infra.mysql.repository.PaymentRepository;
 import com.application.paymentmidtransservice.core.service.EmailGateway;
 import com.application.paymentmidtransservice.core.service.PaymentGateway;
@@ -21,8 +23,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class ServiceConfig {
 
     @Bean
-    public MidtransGateway midtransGateway(PaymentConfig paymentConfig) {
-        return new MidtransService(paymentConfig);
+    public MidtransGateway midtransGateway(PaymentProperty paymentProperty) {
+        return new MidtransService(paymentProperty);
     }
 
     @Bean
@@ -31,8 +33,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    public EmailGateway emailGateway(EmailConfig emailConfig) {
-        return new EmailService(emailConfig);
+    public EmailGateway emailGateway(EmailProperty emailProperty) {
+        return new EmailService(emailProperty);
     }
 
     @Bean

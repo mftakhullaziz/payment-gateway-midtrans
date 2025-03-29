@@ -32,7 +32,10 @@ application:
         merchant-id: G122340993
         client-key: SB-Mid-client-IkH9QUB3A8t8WLLk
         server-key: SB-Mid-server-9D9fBs9eVq_N9WFk0ZOZebEO
+        base-url: "https://api.sandbox.midtrans.com"
         payment-uri: "https://api.sandbox.midtrans.com/v2/charge"
+        payment:
+          charge: "/v2/charge"
         disbursement:
           beneficiaries: "/api/v1/beneficiaries"
           patch-beneficiaries: "/api/v1/beneficiaries/alias_name"

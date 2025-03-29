@@ -1,12 +1,12 @@
 package com.application.paymentmidtransservice.core.service.impl;
 
-import com.application.paymentmidtransservice.config.PaymentConfig;
+import com.application.paymentmidtransservice.app.property.PaymentProperty;
 import com.application.paymentmidtransservice.core.service.MidtransGateway;
 import com.application.paymentmidtransservice.domain.BankType;
 import com.application.paymentmidtransservice.domain.model.PaymentMidtrans;
 import com.application.paymentmidtransservice.domain.model.bank.BcaVa;
 import com.application.paymentmidtransservice.domain.response.PaymentMidtransResponse;
-import com.application.paymentmidtransservice.util.Base64Util;
+import com.application.paymentmidtransservice.utility.Base64Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +22,7 @@ import org.springframework.web.client.RestClient;
 @RequiredArgsConstructor
 public class MidtransService implements MidtransGateway {
 
-    private final PaymentConfig paymentConfig;
+    private final PaymentProperty paymentProperty;
 
     @SneakyThrows
     @Override
@@ -64,7 +64,7 @@ public class MidtransService implements MidtransGateway {
         log.info("Request Body: {}", new ObjectMapper().writerWithDefaultPrettyPrinter()
             .writeValueAsString(requestBody));
 
-        String serverKeyEncode = Base64Util.encodeToBase64(paymentConfig.getMidtrans().getServerKey());
+        String serverKeyEncode = Base64Util.encodeToBase64(paymentProperty.getMidtrans().getServerKey());
         System.out.println("Encode server key: " + serverKeyEncode);
 
         HttpHeaders headers = new HttpHeaders();
@@ -72,7 +72,7 @@ public class MidtransService implements MidtransGateway {
 
         RestClient restClient = RestClient.create();
         ResponseEntity<Object> responseEntity = restClient.post()
-            .uri(paymentConfig.getMidtrans().getPaymentUri())
+            .uri(paymentProperty.getMidtrans().getPaymentUri())
             .contentType(MediaType.APPLICATION_JSON)
             .headers(httpHeaders -> httpHeaders.addAll(headers))
             .body(requestBody)

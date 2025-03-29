@@ -1,6 +1,6 @@
 package com.application.paymentmidtransservice.core.service.impl;
 
-import com.application.paymentmidtransservice.config.EmailConfig;
+import com.application.paymentmidtransservice.app.property.EmailProperty;
 import com.application.paymentmidtransservice.core.service.EmailGateway;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
@@ -14,7 +14,7 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class EmailService implements EmailGateway {
 
-    private final EmailConfig emailConfig;
+    private final EmailProperty emailProperty;
 
     @Override
     public void publishEmailNotification(String email, String name) {
@@ -22,7 +22,7 @@ public class EmailService implements EmailGateway {
             Session session = createSession();
             Message message = new MimeMessage(session);
 
-            message.setFrom(new InternetAddress(emailConfig.getMailDev().getSender()));
+            message.setFrom(new InternetAddress(emailProperty.getMailDev().getSender()));
             message.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
             message.setSubject("REMINDER TO PAYMENT");
             message.setContent("", "text/html; charset=utf-8");
@@ -35,8 +35,8 @@ public class EmailService implements EmailGateway {
 
     private Session createSession() {
         Properties properties = new Properties();
-        properties.put("mail.smtp.host", emailConfig.getMailDev().getHostname());
-        properties.put("mail.smtp.port", emailConfig.getMailDev().getPort());
+        properties.put("mail.smtp.host", emailProperty.getMailDev().getHostname());
+        properties.put("mail.smtp.port", emailProperty.getMailDev().getPort());
         properties.put("mail.smtp.auth", "true");
         properties.put("mail.smtp.starttls.enable", "false");
 
@@ -45,8 +45,8 @@ public class EmailService implements EmailGateway {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(
-                    emailConfig.getMailDev().getUsername(),
-                    emailConfig.getMailDev().getPassword()
+                    emailProperty.getMailDev().getUsername(),
+                    emailProperty.getMailDev().getPassword()
                 );
             }
         };

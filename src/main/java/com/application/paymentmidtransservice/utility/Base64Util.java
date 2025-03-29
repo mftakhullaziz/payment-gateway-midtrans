@@ -1,4 +1,4 @@
-package com.application.paymentmidtransservice.util;
+package com.application.paymentmidtransservice.utility;
 
 import java.util.Base64;
 

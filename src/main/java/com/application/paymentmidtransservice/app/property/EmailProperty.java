@@ -1,4 +1,4 @@
-package com.application.paymentmidtransservice.config;
+package com.application.paymentmidtransservice.app.property;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(value = "application.external-service.email-gateway")
-public class EmailConfig {
+public class EmailProperty {
 
     private MailDev mailDev;
 

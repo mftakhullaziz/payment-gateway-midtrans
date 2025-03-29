@@ -1,4 +1,4 @@
-package com.application.paymentmidtransservice.config;
+package com.application.paymentmidtransservice.app.property;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(value = "application.external-service.payment-gateway")
-public class PaymentConfig {
+public class PaymentProperty {
 
     private Midtrans midtrans;
 
@@ -18,6 +18,8 @@ public class PaymentConfig {
         private String serverKey;
         private String paymentUri;
         private Disbursement disbursement;
+        private String baseUrl;
+        private Payment payment;
     }
 
     @Data
@@ -30,5 +32,10 @@ public class PaymentConfig {
         private String rejectPayouts;
         private String detailPayouts;
         private String transactionDetails;
+    }
+
+    @Data
+    public static class Payment {
+        private String charge;
     }
 }
