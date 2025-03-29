@@ -49,8 +49,10 @@ application:
     # configure for email gateway
     email-gateway:
       mail-dev:
-        hostname: localhost
-        port: 1025
-        username: root
-        password: root
+        hostname: sandbox.smtp.mailtrap.io
+        port: 465
+        username: 875267a6737bd0
+        password: e4f97898f46aa3
         sender: payment-platform@testmail.com
+        ssl: no
+        tls: yes

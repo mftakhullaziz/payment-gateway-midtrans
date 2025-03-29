@@ -38,7 +38,7 @@ public class EmailGatewayImpl implements EmailGateway {
         Properties properties = new Properties();
         properties.put("mail.smtp.host", emailProperty.getMailDev().getHostname());
         properties.put("mail.smtp.port", emailProperty.getMailDev().getPort());
-        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.auth", "PLAIN, LOGIN and CRAM-MD5");
         properties.put("mail.smtp.starttls.enable", "false");
 
         System.out.println(properties.get("mail.smtp.port"));
