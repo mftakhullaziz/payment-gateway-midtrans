@@ -1,5 +1,6 @@
 package com.application.paymentmidtransservice.core.gateway.impl;
 
+import com.application.paymentmidtransservice.app.annotation.Gateway;
 import com.application.paymentmidtransservice.app.property.EmailProperty;
 import com.application.paymentmidtransservice.core.gateway.EmailGateway;
 import jakarta.mail.*;
@@ -10,9 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Properties;
 
-@Service
+@Gateway
 @RequiredArgsConstructor
-public class EmailService implements EmailGateway {
+public class EmailGatewayImpl implements EmailGateway {
 
     private final EmailProperty emailProperty;
 

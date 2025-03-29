@@ -1,18 +1,20 @@
 package com.application.paymentmidtransservice.core.gateway.impl;
 
+import com.application.paymentmidtransservice.app.annotation.Gateway;
 import com.application.paymentmidtransservice.infra.mysql.entity.PaymentEntity;
 import com.application.paymentmidtransservice.infra.mysql.repository.PaymentRepository;
 import com.application.paymentmidtransservice.core.gateway.PaymentGateway;
 import com.application.paymentmidtransservice.domain.model.Payment;
 import com.application.paymentmidtransservice.domain.request.CreatePaymentRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 @Log4j2
-@Service
+@Gateway
 @RequiredArgsConstructor
-public class PaymentService implements PaymentGateway {
+public class PaymentGatewayImpl implements PaymentGateway {
 
     private final PaymentRepository paymentRepository;
 

@@ -1,6 +1,6 @@
 package com.application.paymentmidtransservice.controller;
 
-import com.application.paymentmidtransservice.core.usecase.PaymentUsecase;
+import com.application.paymentmidtransservice.core.usecase.VaTransferUsecase;
 import com.application.paymentmidtransservice.domain.request.PaymentRequest;
 import com.application.paymentmidtransservice.domain.response.DefaultResponse;
 import com.application.paymentmidtransservice.domain.response.PaymentResponse;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/v1/payment")
 public class PaymentController {
 
-    private final PaymentUsecase usecase;
+    private final VaTransferUsecase usecase;
 
     @PostMapping("va-transfer")
     public ResponseEntity<DefaultResponse<PaymentResponse>> vaTransferPayment(@Valid @RequestBody PaymentRequest request) {

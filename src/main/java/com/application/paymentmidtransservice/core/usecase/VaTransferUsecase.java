@@ -1,5 +1,6 @@
 package com.application.paymentmidtransservice.core.usecase;
 
+import com.application.paymentmidtransservice.app.annotation.Usecase;
 import com.application.paymentmidtransservice.core.gateway.EmailGateway;
 import com.application.paymentmidtransservice.core.gateway.PaymentGateway;
 import com.application.paymentmidtransservice.domain.PaymentTypes;
@@ -12,6 +13,7 @@ import com.application.paymentmidtransservice.core.gateway.MidtransGateway;
 import com.application.paymentmidtransservice.domain.response.PaymentMidtransResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -19,15 +21,15 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import java.sql.Timestamp;
 
 @Log4j2
+@Usecase
 @RequiredArgsConstructor
-public class PaymentUsecaseImpl implements PaymentUsecase {
+public class VaTransferUsecase {
 
     private final PaymentGateway paymentGateway;
     private final MidtransGateway midtransGateway;
     private final EmailGateway emailGateway;
     private final PlatformTransactionManager transactionManager;
 
-    @Override
     public PaymentResponse vaTransferPayment(PaymentRequest paymentRequest) {
         DefaultTransactionDefinition defaultTransactionDefinition = new DefaultTransactionDefinition();
         defaultTransactionDefinition.setName("create-payment-transaction-by-user-id: " + paymentRequest.getUsersInfo().getUserId());
@@ -59,7 +61,6 @@ public class PaymentUsecaseImpl implements PaymentUsecase {
         }
     }
 
-    @Override
     public PaymentResponse ccdcTransferPayment(PaymentRequest paymentRequest) {
         return null;
     }

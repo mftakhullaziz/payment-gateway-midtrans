@@ -1,5 +1,6 @@
 package com.application.paymentmidtransservice.core.gateway.impl;
 
+import com.application.paymentmidtransservice.app.annotation.Gateway;
 import com.application.paymentmidtransservice.app.property.PaymentProperty;
 import com.application.paymentmidtransservice.core.gateway.MidtransGateway;
 import com.application.paymentmidtransservice.domain.BankType;
@@ -19,8 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
 @Log4j2
+@Gateway
 @RequiredArgsConstructor
-public class MidtransService implements MidtransGateway {
+public class MidtransGatewayImpl implements MidtransGateway {
 
     private final PaymentProperty paymentProperty;
 
