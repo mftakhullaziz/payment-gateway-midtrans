@@ -2,6 +2,7 @@ package com.application.paymentmidtransservice.core.usecase;
 
 import com.application.paymentmidtransservice.app.annotation.Usecase;
 import com.application.paymentmidtransservice.app.exception.BusinessException;
+import com.application.paymentmidtransservice.core.gateway.CustomerGateway;
 import com.application.paymentmidtransservice.core.gateway.EmailGateway;
 import com.application.paymentmidtransservice.core.gateway.PaymentGateway;
 import com.application.paymentmidtransservice.domain.PaymentTypes;
@@ -27,6 +28,7 @@ import java.sql.Timestamp;
 @RequiredArgsConstructor
 public class VaTransferUsecase {
 
+    private final CustomerGateway customerGateway;
     private final PaymentGateway paymentGateway;
     private final MidtransGateway midtransGateway;
     private final EmailGateway emailGateway;
@@ -43,6 +45,11 @@ public class VaTransferUsecase {
                 throw new BusinessException("Invalid payment-midtrans payload", HttpStatus.UNPROCESSABLE_ENTITY.value()); // 422
             }
 
+            Boolean customerExist = customerGateway.checkCustomerAndHasRole(paymentRequest.getUsersInfo().getEmail(), "CUSTOMER");
+            if (Boolean.FALSE.equals(customerExist)) {
+                throw new BusinessException("Invalid customer for payment", HttpStatus.NOT_FOUND.value());
+            }
+
             PaymentTypes paymentTypes = paymentMidtrans.getPaymentTypes();
             PaymentMidtransResponse midtransResponse = createPaymentTransaction(paymentMidtrans, paymentTypes);
             if (midtransResponse == null) {
@@ -56,7 +63,6 @@ public class VaTransferUsecase {
             }
 
             emailGateway.publishEmailNotification(paymentRequest.getUsersInfo().getEmail(), "");
-
             transactionManager.commit(transactionStatus);
             return getPayments(payment);
         } catch (BusinessException be) {

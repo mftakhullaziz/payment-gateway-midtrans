@@ -2,21 +2,19 @@ package com.application.paymentmidtransservice.core.gateway.impl;
 
 import com.application.paymentmidtransservice.app.annotation.Gateway;
 import com.application.paymentmidtransservice.infra.mysql.entity.PaymentEntity;
-import com.application.paymentmidtransservice.infra.mysql.repository.PaymentRepository;
+import com.application.paymentmidtransservice.infra.mysql.repository.PaymentRepo;
 import com.application.paymentmidtransservice.core.gateway.PaymentGateway;
 import com.application.paymentmidtransservice.domain.model.Payment;
 import com.application.paymentmidtransservice.domain.request.CreatePaymentRequest;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
 
 @Log4j2
 @Gateway
 @RequiredArgsConstructor
 public class PaymentGatewayImpl implements PaymentGateway {
 
-    private final PaymentRepository paymentRepository;
+    private final PaymentRepo paymentRepo;
 
     @Override
     public Payment savePaymentTransaction(CreatePaymentRequest createPaymentRequest) {
@@ -38,7 +36,7 @@ public class PaymentGatewayImpl implements PaymentGateway {
         paymentData.setTotalDiscount(createPaymentRequest.getTotalDiscount());
         paymentData.setUserId(createPaymentRequest.getUserId());
 
-        PaymentEntity paymentEntity = paymentRepository.saveAndFlush(paymentData);
+        PaymentEntity paymentEntity = paymentRepo.saveAndFlush(paymentData);
         return getPaymentDto(paymentEntity);
     }
 

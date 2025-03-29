@@ -7,7 +7,6 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.util.Properties;
 
@@ -24,7 +23,7 @@ public class EmailGatewayImpl implements EmailGateway {
             Message message = new MimeMessage(session);
 
             message.setFrom(new InternetAddress(emailProperty.getMailDev().getSender()));
-            message.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
+            message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));
             message.setSubject("REMINDER TO PAYMENT");
             message.setContent("", "text/html; charset=utf-8");
 
@@ -41,7 +40,6 @@ public class EmailGatewayImpl implements EmailGateway {
         properties.put("mail.smtp.auth", "PLAIN, LOGIN and CRAM-MD5");
         properties.put("mail.smtp.starttls.enable", "false");
 
-        System.out.println(properties.get("mail.smtp.port"));
         Authenticator authenticator = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {

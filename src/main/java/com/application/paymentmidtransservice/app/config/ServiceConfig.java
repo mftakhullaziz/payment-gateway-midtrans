@@ -2,7 +2,7 @@ package com.application.paymentmidtransservice.app.config;
 
 import com.application.paymentmidtransservice.app.property.EmailProperty;
 import com.application.paymentmidtransservice.app.property.PaymentProperty;
-import com.application.paymentmidtransservice.infra.mysql.repository.PaymentRepository;
+import com.application.paymentmidtransservice.infra.mysql.repository.PaymentRepo;
 import com.application.paymentmidtransservice.core.gateway.EmailGateway;
 import com.application.paymentmidtransservice.core.gateway.PaymentGateway;
 import com.application.paymentmidtransservice.core.gateway.impl.EmailGatewayImpl;
@@ -21,8 +21,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    public PaymentGateway paymentGateway(PaymentRepository paymentRepository) {
-        return new PaymentGatewayImpl(paymentRepository);
+    public PaymentGateway paymentGateway(PaymentRepo paymentRepo) {
+        return new PaymentGatewayImpl(paymentRepo);
     }
 
     @Bean

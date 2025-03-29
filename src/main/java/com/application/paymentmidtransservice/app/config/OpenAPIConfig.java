@@ -14,7 +14,7 @@ public class OpenAPIConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         Server httpsNgrokServer = new Server();
-        httpsNgrokServer.setUrl("https://e66d-114-10-103-203.ngrok-free.app");
+        httpsNgrokServer.setUrl("https://d563-114-10-103-236.ngrok-free.app");
         httpsNgrokServer.setDescription("Ngrok tunnel - Production endpoint");
 
         Server localDevServer = new Server();
