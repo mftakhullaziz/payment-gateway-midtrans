@@ -29,9 +29,9 @@ application:
     # configure for payment gateway
     payment-gateway:
       midtrans:
-        merchant-id: G122340993
-        client-key: SB-Mid-client-IkH9QUB3A8t8WLLk
-        server-key: SB-Mid-server-9D9fBs9eVq_N9WFk0ZOZebEO
+        merchant-id: ${MERCHANT_ID}
+        client-key: ${CLIENT_KEY}
+        server-key: ${SERVER_KEY}
         base-url: "https://api.sandbox.midtrans.com"
         payment-uri: "https://api.sandbox.midtrans.com/v2/charge"
         payment:
