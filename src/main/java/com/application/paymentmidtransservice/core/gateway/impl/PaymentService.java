@@ -1,8 +1,8 @@
-package com.application.paymentmidtransservice.core.service.impl;
+package com.application.paymentmidtransservice.core.gateway.impl;
 
 import com.application.paymentmidtransservice.infra.mysql.entity.PaymentEntity;
 import com.application.paymentmidtransservice.infra.mysql.repository.PaymentRepository;
-import com.application.paymentmidtransservice.core.service.PaymentGateway;
+import com.application.paymentmidtransservice.core.gateway.PaymentGateway;
 import com.application.paymentmidtransservice.domain.model.Payment;
 import com.application.paymentmidtransservice.domain.request.CreatePaymentRequest;
 import lombok.RequiredArgsConstructor;

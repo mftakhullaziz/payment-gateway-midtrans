@@ -1,14 +1,14 @@
 package com.application.paymentmidtransservice.core.usecase;
 
-import com.application.paymentmidtransservice.core.service.EmailGateway;
-import com.application.paymentmidtransservice.core.service.PaymentGateway;
+import com.application.paymentmidtransservice.core.gateway.EmailGateway;
+import com.application.paymentmidtransservice.core.gateway.PaymentGateway;
 import com.application.paymentmidtransservice.domain.PaymentTypes;
 import com.application.paymentmidtransservice.domain.model.Payment;
 import com.application.paymentmidtransservice.domain.model.PaymentMidtrans;
 import com.application.paymentmidtransservice.domain.request.CreatePaymentRequest;
 import com.application.paymentmidtransservice.domain.request.PaymentRequest;
 import com.application.paymentmidtransservice.domain.response.PaymentResponse;
-import com.application.paymentmidtransservice.core.service.MidtransGateway;
+import com.application.paymentmidtransservice.core.gateway.MidtransGateway;
 import com.application.paymentmidtransservice.domain.response.PaymentMidtransResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

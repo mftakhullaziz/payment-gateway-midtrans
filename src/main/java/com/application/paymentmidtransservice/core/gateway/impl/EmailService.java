@@ -1,7 +1,7 @@
-package com.application.paymentmidtransservice.core.service.impl;
+package com.application.paymentmidtransservice.core.gateway.impl;
 
 import com.application.paymentmidtransservice.app.property.EmailProperty;
-import com.application.paymentmidtransservice.core.service.EmailGateway;
+import com.application.paymentmidtransservice.core.gateway.EmailGateway;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;

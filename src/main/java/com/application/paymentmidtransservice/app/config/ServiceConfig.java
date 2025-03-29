@@ -3,23 +3,19 @@ package com.application.paymentmidtransservice.app.config;
 import com.application.paymentmidtransservice.app.property.EmailProperty;
 import com.application.paymentmidtransservice.app.property.PaymentProperty;
 import com.application.paymentmidtransservice.infra.mysql.repository.PaymentRepository;
-import com.application.paymentmidtransservice.core.service.EmailGateway;
-import com.application.paymentmidtransservice.core.service.PaymentGateway;
-import com.application.paymentmidtransservice.core.service.impl.EmailService;
-import com.application.paymentmidtransservice.core.service.impl.PaymentService;
+import com.application.paymentmidtransservice.core.gateway.EmailGateway;
+import com.application.paymentmidtransservice.core.gateway.PaymentGateway;
+import com.application.paymentmidtransservice.core.gateway.impl.EmailService;
+import com.application.paymentmidtransservice.core.gateway.impl.PaymentService;
 import com.application.paymentmidtransservice.core.usecase.PaymentUsecase;
 import com.application.paymentmidtransservice.core.usecase.PaymentUsecaseImpl;
-import com.application.paymentmidtransservice.core.service.MidtransGateway;
-import com.application.paymentmidtransservice.core.service.impl.MidtransService;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import com.application.paymentmidtransservice.core.gateway.MidtransGateway;
+import com.application.paymentmidtransservice.core.gateway.impl.MidtransService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.application.paymentmidtransservice.infra.repository")
-@EntityScan(basePackages = "com.application.paymentmidtransservice.persistence.entity") // Add this line
 public class ServiceConfig {
 
     @Bean

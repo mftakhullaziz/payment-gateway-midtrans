@@ -1,4 +1,4 @@
-package com.application.paymentmidtransservice.core.service;
+package com.application.paymentmidtransservice.core.gateway;
 
 import com.application.paymentmidtransservice.domain.model.PaymentMidtrans;
 import com.application.paymentmidtransservice.domain.response.PaymentMidtransResponse;

@@ -1,7 +1,7 @@
-package com.application.paymentmidtransservice.core.service.impl;
+package com.application.paymentmidtransservice.core.gateway.impl;
 
 import com.application.paymentmidtransservice.app.property.PaymentProperty;
-import com.application.paymentmidtransservice.core.service.MidtransGateway;
+import com.application.paymentmidtransservice.core.gateway.MidtransGateway;
 import com.application.paymentmidtransservice.domain.BankType;
 import com.application.paymentmidtransservice.domain.model.PaymentMidtrans;
 import com.application.paymentmidtransservice.domain.model.bank.BcaVa;
