@@ -28,7 +28,7 @@ public class PaymentUsecaseImpl implements PaymentUsecase {
     private final PlatformTransactionManager transactionManager;
 
     @Override
-    public PaymentResponse executePaymentTransaction(PaymentRequest paymentRequest) {
+    public PaymentResponse vaTransferPayment(PaymentRequest paymentRequest) {
         DefaultTransactionDefinition defaultTransactionDefinition = new DefaultTransactionDefinition();
         defaultTransactionDefinition.setName("create-payment-transaction-by-user-id: " + paymentRequest.getUsersInfo().getUserId());
         TransactionStatus transactionStatus = transactionManager.getTransaction(defaultTransactionDefinition);
@@ -57,6 +57,11 @@ public class PaymentUsecaseImpl implements PaymentUsecase {
             transactionManager.rollback(transactionStatus);
             throw e;
         }
+    }
+
+    @Override
+    public PaymentResponse ccdcTransferPayment(PaymentRequest paymentRequest) {
+        return null;
     }
 
     private PaymentMidtransResponse createPaymentTransaction(
