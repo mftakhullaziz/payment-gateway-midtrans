@@ -1,9 +1,10 @@
 package com.application.paymentmidtransservice.controller;
 
+import com.application.paymentmidtransservice.core.usecase.CCDCUsecase;
 import com.application.paymentmidtransservice.core.usecase.VaTransferUsecase;
 import com.application.paymentmidtransservice.domain.request.PaymentRequest;
-import com.application.paymentmidtransservice.domain.response.DefaultResponse;
 import com.application.paymentmidtransservice.domain.response.PaymentResponse;
+import com.application.paymentmidtransservice.domain.response.Response;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,27 +22,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/v1/payment")
 public class PaymentController {
 
-    private final VaTransferUsecase usecase;
+    private final VaTransferUsecase vaTransferUsecase;
+    private final CCDCUsecase ccdcUsecase;
 
     @PostMapping("va-transfer")
-    public ResponseEntity<DefaultResponse<PaymentResponse>> vaTransferPayment(@Valid @RequestBody PaymentRequest request) {
-        PaymentResponse response = usecase.vaTransferPayment(request);
-        DefaultResponse<PaymentResponse> defaultResponse = new DefaultResponse<>();
-        defaultResponse.setData(response);
-        defaultResponse.setSuccess(true);
-        defaultResponse.setStatusCode(201);
-        defaultResponse.setMessage("create transaction successfully!");
-        return ResponseEntity.ok(defaultResponse);
+    public ResponseEntity<Response<PaymentResponse>> vaTransferPayment(@Valid @RequestBody PaymentRequest request) {
+        PaymentResponse paymentResponse = vaTransferUsecase.vaTransferPayment(request);
+        Response<PaymentResponse> response = Response.created(paymentResponse);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("ccdc-transfer")
-    public ResponseEntity<DefaultResponse<PaymentResponse>> ccdcPayment(@Valid @RequestBody PaymentRequest request) {
-        DefaultResponse<PaymentResponse> defaultResponse = new DefaultResponse<>();
-        defaultResponse.setData(null);
-        defaultResponse.setSuccess(true);
-        defaultResponse.setStatusCode(201);
-        defaultResponse.setMessage("create transaction successfully!");
-        return ResponseEntity.ok(defaultResponse);
+    public ResponseEntity<Response<PaymentResponse>> ccdcPayment(@Valid @RequestBody PaymentRequest request) {
+        PaymentResponse paymentResponse = ccdcUsecase.ccdcTransferPayment(request);
+        Response<PaymentResponse> response = Response.created(paymentResponse);
+        return ResponseEntity.ok(response);
     }
 
 }

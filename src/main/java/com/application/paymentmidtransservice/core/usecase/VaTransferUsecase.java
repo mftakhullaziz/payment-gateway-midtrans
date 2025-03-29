@@ -1,6 +1,7 @@
 package com.application.paymentmidtransservice.core.usecase;
 
 import com.application.paymentmidtransservice.app.annotation.Usecase;
+import com.application.paymentmidtransservice.app.exception.BusinessException;
 import com.application.paymentmidtransservice.core.gateway.EmailGateway;
 import com.application.paymentmidtransservice.core.gateway.PaymentGateway;
 import com.application.paymentmidtransservice.domain.PaymentTypes;
@@ -13,6 +14,7 @@ import com.application.paymentmidtransservice.core.gateway.MidtransGateway;
 import com.application.paymentmidtransservice.domain.response.PaymentMidtransResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -37,32 +39,33 @@ public class VaTransferUsecase {
 
         try {
             PaymentMidtrans paymentMidtrans = paymentDtoMapper(paymentRequest);
-
-//            Boolean userValidation = userService.validationUserByUserIdAndEmail(paymentRequest.getUserId(), paymentRequest.getEmail());
-//            if (userValidation != true) {
-//                throw new ApiResponseException(HttpStatus.BadRequest, APIError.builder.errorMessage("your parameter user-id and email not valid"));
-//            }
+            if (paymentMidtrans == null) {
+                throw new BusinessException("Invalid payment-midtrans payload", HttpStatus.UNPROCESSABLE_ENTITY.value()); // 422
+            }
 
             PaymentTypes paymentTypes = paymentMidtrans.getPaymentTypes();
             PaymentMidtransResponse midtransResponse = createPaymentTransaction(paymentMidtrans, paymentTypes);
+            if (midtransResponse == null) {
+                throw new BusinessException("Failed to create payment transaction with Midtrans", HttpStatus.BAD_GATEWAY.value()); // 502
+            }
 
             CreatePaymentRequest createPaymentRequest = createPaymentRequests(paymentRequest, midtransResponse);
             Payment payment = paymentGateway.savePaymentTransaction(createPaymentRequest);
+            if (payment == null) {
+                throw new BusinessException("Failed to persist payment transaction to database", HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+            }
 
             emailGateway.publishEmailNotification(paymentRequest.getUsersInfo().getEmail(), "");
 
-            // Commit transaction
             transactionManager.commit(transactionStatus);
-
             return getPayments(payment);
+        } catch (BusinessException be) {
+            transactionManager.rollback(transactionStatus);
+            throw be;
         } catch (Exception e) {
             transactionManager.rollback(transactionStatus);
-            throw e;
+            throw new BusinessException("Unexpected server error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-    }
-
-    public PaymentResponse ccdcTransferPayment(PaymentRequest paymentRequest) {
-        return null;
     }
 
     private PaymentMidtransResponse createPaymentTransaction(
@@ -71,53 +74,54 @@ public class VaTransferUsecase {
         return switch (paymentTypes) {
             case BANK_TRANSFER -> midtransGateway.executePayMidtransBankTransfer(paymentMidtrans);
             case CREDIT_CARD -> midtransGateway.executePayMidtransCreditCard(paymentMidtrans);
-            default -> throw new RuntimeException("not found");
+            default -> throw new BusinessException("enum not found", HttpStatus.UNPROCESSABLE_ENTITY.value());
         };
     }
 
     private static CreatePaymentRequest createPaymentRequests(
-        PaymentRequest paymentRequest, PaymentMidtransResponse midtransResponse)
-    {
-        CreatePaymentRequest createPaymentRequest = new CreatePaymentRequest();
-        createPaymentRequest.setTransactionId(midtransResponse.getTransactionId());
-        createPaymentRequest.setTransactionTime(Timestamp.valueOf(midtransResponse.getTransactionTime()));
-        createPaymentRequest.setTransactionStatus(midtransResponse.getTransactionStatus());
-        createPaymentRequest.setOrderId(midtransResponse.getOrderId());
-        createPaymentRequest.setMerchantId(midtransResponse.getMerchantId());
-        createPaymentRequest.setGrossAmount(Double.valueOf(midtransResponse.getGrossAmount()));
-        createPaymentRequest.setCurrency(midtransResponse.getCurrency());
-        createPaymentRequest.setExpiryTime(Timestamp.valueOf(midtransResponse.getExpiryTime()));
-        createPaymentRequest.setFraudStatus(midtransResponse.getFraudStatus());
-        createPaymentRequest.setPaymentType(midtransResponse.getPaymentType());
-        createPaymentRequest.setPaymentMethod(midtransResponse.getVaNumbers().getFirst().getBank());
-        createPaymentRequest.setPaymentVaNumbers(midtransResponse.getVaNumbers().getFirst().getVa_number());
-        createPaymentRequest.setTotalPrice(paymentRequest.getTotalPrice());
-        createPaymentRequest.setTotalTax(paymentRequest.getTotalTax());
-        createPaymentRequest.setTotalDiscount(paymentRequest.getTotalDiscount());
-        createPaymentRequest.setUserId(paymentRequest.getUsersInfo().getUserId());
-        return createPaymentRequest;
+        PaymentRequest paymentRequest,
+        PaymentMidtransResponse midtransResponse
+    ) {
+        return CreatePaymentRequest.builder()
+            .transactionId(midtransResponse.getTransactionId())
+            .transactionTime(Timestamp.valueOf(midtransResponse.getTransactionTime()))
+            .transactionStatus(midtransResponse.getTransactionStatus())
+            .orderId(midtransResponse.getOrderId())
+            .merchantId(midtransResponse.getMerchantId())
+            .grossAmount(Double.valueOf(midtransResponse.getGrossAmount()))
+            .currency(midtransResponse.getCurrency())
+            .expiryTime(Timestamp.valueOf(midtransResponse.getExpiryTime()))
+            .fraudStatus(midtransResponse.getFraudStatus())
+            .paymentType(midtransResponse.getPaymentType())
+            .paymentMethod(midtransResponse.getVaNumbers().getFirst().getBank())
+            .paymentVaNumbers(midtransResponse.getVaNumbers().getFirst().getVa_number())
+            .totalPrice(paymentRequest.getTotalPrice())
+            .totalTax(paymentRequest.getTotalTax())
+            .totalDiscount(paymentRequest.getTotalDiscount())
+            .userId(paymentRequest.getUsersInfo().getUserId())
+            .build();
     }
 
-    private static PaymentResponse getPayments(Payment paymentEntity) {
-        PaymentResponse paymentDto = new PaymentResponse();
-        paymentDto.setPaymentId(paymentEntity.getPaymentId());
-        paymentDto.setUserId(paymentEntity.getUserId());
-        paymentDto.setOrderId(paymentEntity.getOrderId());
-        paymentDto.setTransactionId(paymentEntity.getTransactionId());
-        paymentDto.setMerchantId(paymentEntity.getMerchantId());
-        paymentDto.setGrossAmount(paymentEntity.getGrossAmount());
-        paymentDto.setCurrency(paymentEntity.getCurrency());
-        paymentDto.setTransactionTime(paymentEntity.getTransactionTime());
-        paymentDto.setTransactionStatus(paymentEntity.getTransactionStatus());
-        paymentDto.setExpiryTime(paymentEntity.getExpiryTime());
-        paymentDto.setFraudStatus(paymentEntity.getFraudStatus());
-        paymentDto.setPaymentType(paymentEntity.getPaymentType());
-        paymentDto.setPaymentMethod(paymentEntity.getPaymentMethod());
-        paymentDto.setPaymentVaNumbers(paymentEntity.getPaymentVaNumbers());
-        paymentDto.setTotalPrice(paymentEntity.getTotalPrice());
-        paymentDto.setTotalTax(paymentEntity.getTotalTax());
-        paymentDto.setTotalDiscount(paymentEntity.getTotalDiscount());
-        return paymentDto;
+    private static PaymentResponse getPayments(Payment payment) {
+        return PaymentResponse.builder()
+            .paymentId(payment.getPaymentId())
+            .userId(payment.getUserId())
+            .orderId(payment.getOrderId())
+            .transactionId(payment.getTransactionId())
+            .merchantId(payment.getMerchantId())
+            .grossAmount(payment.getGrossAmount())
+            .currency(payment.getCurrency())
+            .transactionTime(payment.getTransactionTime())
+            .transactionStatus(payment.getTransactionStatus())
+            .expiryTime(payment.getExpiryTime())
+            .fraudStatus(payment.getFraudStatus())
+            .paymentType(payment.getPaymentType())
+            .paymentMethod(payment.getPaymentMethod())
+            .paymentVaNumbers(payment.getPaymentVaNumbers())
+            .totalPrice(payment.getTotalPrice())
+            .totalTax(payment.getTotalTax())
+            .totalDiscount(payment.getTotalDiscount())
+            .build();
     }
 
     private PaymentMidtrans paymentDtoMapper(PaymentRequest request) {

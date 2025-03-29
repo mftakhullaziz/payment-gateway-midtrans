@@ -7,5 +7,6 @@ public enum BankType {
     BCA,
     BRI,
     CIMB,
-    MANDIRI
+    MANDIRI,
+    PERMATA
 }
