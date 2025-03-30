@@ -23,6 +23,14 @@ spring:
         storage_engine: innodb  # Set the storage engine to InnoDB
     open-in-view: false
 
+springdoc:
+  api-docs:
+    version: OPENAPI_3_0
+  swagger-ui:
+    url: /v3/api-docs
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+
 application:
   external-service:
     # configure for payment gateway
