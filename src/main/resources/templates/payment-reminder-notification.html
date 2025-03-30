@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Reminder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px;
+            border: 1px solid #eeeeee;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #0055cc;
+        }
+        .footer {
+            margin-top: 32px;
+            font-size: 12px;
+            color: #888888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Hello <span class="highlight">{{name}}</span>,</h2>
+    <p>This is a reminder to complete your payment.</p>
+    <p>Please use the virtual account details below:</p>
+
+    <ul>
+        <li><strong>Bank:</strong> {{bankType}}</li>
+        <li><strong>Virtual Account Number:</strong> {{virtualAccountNumber}}</li>
+        <li><strong>Status:</strong> {{status}}</li>
+        <li><strong>Expires in:</strong> {{expiredTime}} minutes</li>
+    </ul>
+
+    <p>If you’ve already made the payment, you can safely ignore this message.</p>
+    <p>Thank you!</p>
+
+    <div class="footer">
+        &copy; {{year}} Payment System - All rights reserved.
+    </div>
+</div>
+</body>
+</html>

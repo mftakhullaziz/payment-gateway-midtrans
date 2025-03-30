@@ -13,6 +13,7 @@ import com.application.paymentmidtransservice.domain.request.PaymentRequest;
 import com.application.paymentmidtransservice.domain.response.PaymentResponse;
 import com.application.paymentmidtransservice.core.gateway.MidtransGateway;
 import com.application.paymentmidtransservice.domain.response.PaymentMidtransResponse;
+import com.application.paymentmidtransservice.utility.TimeUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -62,7 +63,14 @@ public class VaTransferUsecase {
                 throw new BusinessException("Failed to persist payment transaction to database", HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
             }
 
-            emailGateway.publishEmailNotification(paymentRequest.getUsersInfo().getEmail(), "");
+            emailGateway.publishEmailRemainderNotification(
+                paymentRequest.getUsersInfo().getEmail(),
+                paymentRequest.getUsersInfo().getName(),
+                midtransResponse.getVaNumbers().getFirst().getVa_number(),
+                midtransResponse.getVaNumbers().getFirst().getBank(),
+                midtransResponse.getExpiryTime(),
+                midtransResponse.getTransactionStatus().toUpperCase());
+
             transactionManager.commit(transactionStatus);
             return getPayments(payment);
         } catch (BusinessException be) {
