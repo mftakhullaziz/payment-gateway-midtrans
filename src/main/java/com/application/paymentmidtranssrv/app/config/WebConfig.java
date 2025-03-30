@@ -8,6 +8,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -29,5 +30,16 @@ public class WebConfig implements WebMvcConfigurer {
             MediaType.ALL
         ));
         return messageConverter;
+    }
+
+    private final ServerUrlResolver serverUrlResolver;
+
+    public WebConfig(ServerUrlResolver serverUrlResolver) {
+        this.serverUrlResolver = serverUrlResolver;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(serverUrlResolver);
     }
 }

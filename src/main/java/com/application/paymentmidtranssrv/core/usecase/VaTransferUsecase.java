@@ -35,7 +35,7 @@ public class VaTransferUsecase {
 
     public PaymentResponse vaTransferPayment(PaymentRequest paymentRequest) {
         DefaultTransactionDefinition defaultTransactionDefinition = new DefaultTransactionDefinition();
-        defaultTransactionDefinition.setName("create-payment-transaction-by-user-id: " + paymentRequest.getUsersInfo().getCustomerId());
+        defaultTransactionDefinition.setName("create-payment-transaction-by-user-id: " + paymentRequest.getCustomerInfo().getCustomerId());
         TransactionStatus transactionStatus = transactionManager.getTransaction(defaultTransactionDefinition);
 
         try {
@@ -44,7 +44,7 @@ public class VaTransferUsecase {
                 throw new BusinessException("Invalid payment-midtrans payload", HttpStatus.UNPROCESSABLE_ENTITY.value()); // 422
             }
 
-            Boolean customerExist = customerGateway.checkCustomerAndHasRole(paymentRequest.getUsersInfo().getEmail(), "CUSTOMER");
+            Boolean customerExist = customerGateway.checkCustomerAndHasRole(paymentRequest.getCustomerInfo().getEmail(), "CUSTOMER");
             if (Boolean.FALSE.equals(customerExist)) {
                 throw new BusinessException("Invalid customer for payment", HttpStatus.NOT_FOUND.value());
             }
@@ -62,8 +62,8 @@ public class VaTransferUsecase {
             }
 
             emailGateway.publishEmailRemainderNotification(
-                paymentRequest.getUsersInfo().getEmail(),
-                paymentRequest.getUsersInfo().getName(),
+                paymentRequest.getCustomerInfo().getEmail(),
+                paymentRequest.getCustomerInfo().getName(),
                 midtransResponse.getVaNumbers().getFirst().getVa_number(),
                 midtransResponse.getVaNumbers().getFirst().getBank(),
                 midtransResponse.getExpiryTime(),
@@ -110,7 +110,7 @@ public class VaTransferUsecase {
             .totalPrice(paymentRequest.getTotalPrice())
             .totalTax(paymentRequest.getTotalTax())
             .totalDiscount(paymentRequest.getTotalDiscount())
-            .customerId(paymentRequest.getUsersInfo().getCustomerId())
+            .customerId(paymentRequest.getCustomerInfo().getCustomerId())
             .build();
     }
 

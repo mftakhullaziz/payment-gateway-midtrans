@@ -1,6 +1,7 @@
 package com.application.paymentmidtranssrv.core.gateway.impl;
 
 import com.application.paymentmidtranssrv.app.annotation.Gateway;
+import com.application.paymentmidtranssrv.app.exception.BusinessException;
 import com.application.paymentmidtranssrv.infra.mysql.entity.PaymentEntity;
 import com.application.paymentmidtranssrv.infra.mysql.repository.PaymentRepo;
 import com.application.paymentmidtranssrv.core.gateway.PaymentGateway;
@@ -39,6 +40,25 @@ public class PaymentGatewayImpl implements PaymentGateway {
 
         PaymentEntity paymentEntity = paymentRepo.saveAndFlush(constructPaymentEntity);
         return constructPayment(paymentEntity);
+    }
+
+    @Override
+    public Payment findByOrderId(String orderId) {
+        return paymentRepo.findByOrderId(orderId)
+            .map(PaymentGatewayImpl::constructPayment)
+            .orElse(null);
+    }
+
+    @Override
+    public void updatePayment(String transactionStatus,
+                              String orderId,
+                              Long paymentId,
+                              Long customerId) {
+        paymentRepo.findByOrderIdAndIdAndCustomerId(orderId, paymentId, customerId)
+            .ifPresent(payment -> {
+                payment.setTransactionStatus(transactionStatus);
+                paymentRepo.save(payment);
+            });
     }
 
     private static Payment constructPayment(PaymentEntity paymentEntity) {
