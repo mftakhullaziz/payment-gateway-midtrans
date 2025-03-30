@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 public class CreatePaymentRequest {
     private String orderId;
     private String transactionId;
-    private Integer userId;
+    private Long customerId;
     private String merchantId;
     private Double grossAmount;
     private String currency;

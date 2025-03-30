@@ -7,7 +7,7 @@ import com.application.paymentmidtranssrv.domain.BankType;
 import com.application.paymentmidtranssrv.domain.model.PaymentMidtrans;
 import com.application.paymentmidtranssrv.domain.model.bank.BcaVa;
 import com.application.paymentmidtranssrv.domain.response.PaymentMidtransResponse;
-import com.application.paymentmidtranssrv.utility.Base64Util;
+import com.application.paymentmidtranssrv.utility.Base64Utility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,7 +66,7 @@ public class MidtransGatewayImpl implements MidtransGateway {
         log.info("Request Body: {}", new ObjectMapper().writerWithDefaultPrettyPrinter()
             .writeValueAsString(requestBody));
 
-        String serverKeyEncode = Base64Util.encodeToBase64(paymentProperty.getMidtrans().getServerKey());
+        String serverKeyEncode = Base64Utility.encodeToBase64(paymentProperty.getMidtrans().getServerKey());
         System.out.println("Encode server key: " + serverKeyEncode);
 
         HttpHeaders headers = new HttpHeaders();

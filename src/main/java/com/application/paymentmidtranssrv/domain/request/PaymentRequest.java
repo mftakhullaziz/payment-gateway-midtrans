@@ -22,8 +22,8 @@ public class PaymentRequest {
     @JsonProperty(value = "transfer_via")
     private BankType bankType;
 
-    @JsonProperty(value = "users_info")
-    private UsersInfo usersInfo;
+    @JsonProperty(value = "customer")
+    private CustomerInfo customerInfo;
 
     @JsonProperty(value = "total_price")
     private Double totalPrice;
@@ -44,9 +44,9 @@ public class PaymentRequest {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class UsersInfo {
-        @JsonProperty(value = "user_id")
-        private Integer userId;
+    public static class CustomerInfo {
+        @JsonProperty(value = "customer_id")
+        private Long customerId;
 
         @JsonProperty(value = "email")
         private String email;

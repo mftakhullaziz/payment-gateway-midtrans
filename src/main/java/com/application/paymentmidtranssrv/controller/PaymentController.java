@@ -1,6 +1,7 @@
 package com.application.paymentmidtranssrv.controller;
 
 import com.application.paymentmidtranssrv.core.usecase.CCDCUsecase;
+import com.application.paymentmidtranssrv.core.usecase.SnapTransferUsecase;
 import com.application.paymentmidtranssrv.core.usecase.VaTransferUsecase;
 import com.application.paymentmidtranssrv.domain.request.PaymentRequest;
 import com.application.paymentmidtranssrv.domain.response.PaymentResponse;
@@ -24,6 +25,7 @@ public class PaymentController {
 
     private final VaTransferUsecase vaTransferUsecase;
     private final CCDCUsecase ccdcUsecase;
+    private final SnapTransferUsecase snapTransferUsecase;
 
     @PostMapping("va-transfer")
     public ResponseEntity<Response<PaymentResponse>> vaTransferPayment(@Valid @RequestBody PaymentRequest request) {
@@ -35,6 +37,13 @@ public class PaymentController {
     @PostMapping("ccdc-transfer")
     public ResponseEntity<Response<PaymentResponse>> ccdcPayment(@Valid @RequestBody PaymentRequest request) {
         PaymentResponse paymentResponse = ccdcUsecase.ccdcTransferPayment(request);
+        Response<PaymentResponse> response = Response.created(paymentResponse);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("snap-transfer")
+    public ResponseEntity<Response<PaymentResponse>> snapPayment(@Valid @RequestBody PaymentRequest request) {
+        PaymentResponse paymentResponse = snapTransferUsecase.snapTransferPayment(request);
         Response<PaymentResponse> response = Response.created(paymentResponse);
         return ResponseEntity.ok(response);
     }

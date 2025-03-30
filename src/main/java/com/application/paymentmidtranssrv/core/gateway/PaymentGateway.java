@@ -5,4 +5,11 @@ import com.application.paymentmidtranssrv.domain.request.CreatePaymentRequest;
 
 public interface PaymentGateway {
     Payment savePaymentTransaction(CreatePaymentRequest createPaymentRequest);
+
+    Payment findByOrderId(String orderId);
+
+    void updatePayment(String transactionStatus,
+                       String orderId,
+                       Long paymentId,
+                       Long customerId);
 }

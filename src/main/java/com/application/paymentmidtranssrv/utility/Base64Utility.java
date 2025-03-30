@@ -2,9 +2,9 @@ package com.application.paymentmidtranssrv.utility;
 
 import java.util.Base64;
 
-public class Base64Util {
+public class Base64Utility {
 
-    private Base64Util() {}
+    private Base64Utility() {}
 
     public static String encodeToBase64(String data) {
         byte[] bytesToEncode = data.getBytes();
