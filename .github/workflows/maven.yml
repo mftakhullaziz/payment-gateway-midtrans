@@ -34,10 +34,10 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B clean install
 
       - name: Submit dependency snapshot
         uses: advanced-security/maven-dependency-submission-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          maven-args: "-B -ntp install"
+          maven-args: "-B -ntp clean install"
