@@ -58,6 +58,6 @@ application:
       mail-dev:
         hostname: sandbox.smtp.mailtrap.io
         port: 2525
-        username: 875267a6737bd0
-        password: e4f97898f46aa3
-        sender: payment-platform@testmail.com
+        username: ${MAILTRAP_USERNAME}
+        password: ${MAILTRAP_PASSWORD}
+        sender: store.example.notification@noreply.com
