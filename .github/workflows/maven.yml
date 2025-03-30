@@ -39,4 +39,5 @@ jobs:
       - name: Submit dependency snapshot
         uses: advanced-security/maven-dependency-submission-action@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          maven-args: "-B -ntp install"
