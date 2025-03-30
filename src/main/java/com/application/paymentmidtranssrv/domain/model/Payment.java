@@ -12,8 +12,8 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Payment {
-    private Integer paymentId;
-    private Integer userId;
+    private Long paymentId;
+    private Long customerId;
     private String orderId;
     private String transactionId;
     private String merchantId;

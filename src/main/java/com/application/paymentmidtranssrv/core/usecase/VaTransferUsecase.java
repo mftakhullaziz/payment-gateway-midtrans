@@ -35,7 +35,7 @@ public class VaTransferUsecase {
 
     public PaymentResponse vaTransferPayment(PaymentRequest paymentRequest) {
         DefaultTransactionDefinition defaultTransactionDefinition = new DefaultTransactionDefinition();
-        defaultTransactionDefinition.setName("create-payment-transaction-by-user-id: " + paymentRequest.getUsersInfo().getUserId());
+        defaultTransactionDefinition.setName("create-payment-transaction-by-user-id: " + paymentRequest.getUsersInfo().getCustomerId());
         TransactionStatus transactionStatus = transactionManager.getTransaction(defaultTransactionDefinition);
 
         try {
@@ -110,14 +110,14 @@ public class VaTransferUsecase {
             .totalPrice(paymentRequest.getTotalPrice())
             .totalTax(paymentRequest.getTotalTax())
             .totalDiscount(paymentRequest.getTotalDiscount())
-            .userId(paymentRequest.getUsersInfo().getUserId())
+            .customerId(paymentRequest.getUsersInfo().getCustomerId())
             .build();
     }
 
     private static PaymentResponse getPayments(Payment payment) {
         return PaymentResponse.builder()
             .paymentId(payment.getPaymentId())
-            .userId(payment.getUserId())
+            .customerId(payment.getCustomerId())
             .orderId(payment.getOrderId())
             .transactionId(payment.getTransactionId())
             .merchantId(payment.getMerchantId())

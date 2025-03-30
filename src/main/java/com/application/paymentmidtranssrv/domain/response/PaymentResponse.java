@@ -14,10 +14,10 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class PaymentResponse {
     @JsonProperty(value = "payment_id")
-    private Integer paymentId;
+    private Long paymentId;
 
-    @JsonProperty(value = "user_id")
-    private Integer userId;
+    @JsonProperty(value = "customer_id")
+    private Long customerId;
 
     @JsonProperty(value = "order_id")
     private String orderId;

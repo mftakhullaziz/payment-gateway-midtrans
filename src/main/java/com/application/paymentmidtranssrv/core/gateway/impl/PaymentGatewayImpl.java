@@ -17,33 +17,34 @@ public class PaymentGatewayImpl implements PaymentGateway {
     private final PaymentRepo paymentRepo;
 
     @Override
-    public Payment savePaymentTransaction(CreatePaymentRequest createPaymentRequest) {
-        PaymentEntity paymentData = new PaymentEntity();
-        paymentData.setOrderId(createPaymentRequest.getOrderId());
-        paymentData.setTransactionId(createPaymentRequest.getTransactionId());
-        paymentData.setMerchantId(createPaymentRequest.getMerchantId());
-        paymentData.setGrossAmount(createPaymentRequest.getGrossAmount());
-        paymentData.setCurrency(createPaymentRequest.getCurrency());
-        paymentData.setTransactionTime(createPaymentRequest.getTransactionTime());
-        paymentData.setTransactionStatus(createPaymentRequest.getTransactionStatus());
-        paymentData.setExpiryTime(createPaymentRequest.getExpiryTime());
-        paymentData.setFraudStatus(createPaymentRequest.getFraudStatus());
-        paymentData.setPaymentType(createPaymentRequest.getPaymentType());
-        paymentData.setPaymentMethod(createPaymentRequest.getPaymentMethod());
-        paymentData.setPaymentVaNumbers(createPaymentRequest.getPaymentVaNumbers());
-        paymentData.setTotalPrice(createPaymentRequest.getTotalPrice());
-        paymentData.setTotalTax(createPaymentRequest.getTotalTax());
-        paymentData.setTotalDiscount(createPaymentRequest.getTotalDiscount());
-        paymentData.setUserId(createPaymentRequest.getUserId());
+    public Payment savePaymentTransaction(CreatePaymentRequest request) {
+        PaymentEntity constructPaymentEntity = PaymentEntity.builder()
+            .orderId(request.getOrderId())
+            .customerId(request.getCustomerId())
+            .transactionId(request.getTransactionId())
+            .merchantId(request.getMerchantId())
+            .grossAmount(request.getGrossAmount())
+            .currency(request.getCurrency())
+            .transactionTime(request.getTransactionTime())
+            .transactionStatus(request.getTransactionStatus())
+            .expiryTime(request.getExpiryTime())
+            .fraudStatus(request.getFraudStatus())
+            .paymentType(request.getPaymentType())
+            .paymentMethod(request.getPaymentMethod())
+            .paymentVaNumbers(request.getPaymentVaNumbers())
+            .totalTax(request.getTotalTax())
+            .totalDiscount(request.getTotalDiscount())
+            .totalPrice(request.getTotalPrice())
+            .build();
 
-        PaymentEntity paymentEntity = paymentRepo.saveAndFlush(paymentData);
-        return getPaymentDto(paymentEntity);
+        PaymentEntity paymentEntity = paymentRepo.saveAndFlush(constructPaymentEntity);
+        return constructPayment(paymentEntity);
     }
 
-    private static Payment getPaymentDto(PaymentEntity paymentEntity) {
+    private static Payment constructPayment(PaymentEntity paymentEntity) {
         Payment payment = new Payment();
-        payment.setPaymentId(paymentEntity.getPaymentId());
-        payment.setUserId(paymentEntity.getUserId());
+        payment.setPaymentId(paymentEntity.getId());
+        payment.setCustomerId(paymentEntity.getCustomerId());
         payment.setOrderId(paymentEntity.getOrderId());
         payment.setTransactionId(paymentEntity.getTransactionId());
         payment.setMerchantId(paymentEntity.getMerchantId());
