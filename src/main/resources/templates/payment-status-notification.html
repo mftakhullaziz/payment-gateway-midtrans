@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Success</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px;
+            border: 1px solid #eeeeee;
+            border-radius: 8px;
+            background-color: #f0fff4;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .footer {
+            margin-top: 32px;
+            font-size: 12px;
+            color: #888888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Hi <span class="highlight">{{name}}</span>,</h2>
+    <p>🎉 Your payment was successful!</p>
+
+    <ul>
+        <li><strong>Order ID:</strong> {{orderId}}</li>
+        <li><strong>Payment Method:</strong> {{bankType}}</li>
+        <li><strong>Amount:</strong> Rp {{amount}}</li>
+        <li><strong>Paid at:</strong> {{paidAt}}</li>
+        <li><strong>Status:</strong> {{status}}</li>
+    </ul>
+
+    <p>We appreciate your business. If you have any questions, feel free to contact our support team.</p>
+
+    <div class="footer">
+        &copy; {{year}} Payment System - All rights reserved.
+    </div>
+</div>
+</body>
+</html>
