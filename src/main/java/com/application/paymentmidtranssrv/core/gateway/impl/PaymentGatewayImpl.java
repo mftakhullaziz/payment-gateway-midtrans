@@ -60,6 +60,13 @@ public class PaymentGatewayImpl implements PaymentGateway {
             });
     }
 
+    @Override
+    public Long findCustomerIdByOrderIdAndTransactionId(String orderId, String transactionId) {
+        return paymentRepo.findByOrderIdAndTransactionId(orderId, transactionId)
+            .map(PaymentEntity::getCustomerId)
+            .orElse(null);
+    }
+
     private static Payment constructPayment(PaymentEntity paymentEntity) {
         Payment payment = new Payment();
         payment.setPaymentId(paymentEntity.getId());

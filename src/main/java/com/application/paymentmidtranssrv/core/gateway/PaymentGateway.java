@@ -11,4 +11,7 @@ public interface PaymentGateway {
     void updatePayment(String transactionStatus,
                        String orderId,
                        String transactionId);
+
+    Long findCustomerIdByOrderIdAndTransactionId(
+        String orderId, String transactionId);
 }
