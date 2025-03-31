@@ -2,6 +2,7 @@ package com.application.paymentmidtranssrv.core.usecase;
 
 import com.application.paymentmidtranssrv.app.annotation.Usecase;
 import com.application.paymentmidtranssrv.app.exception.BusinessException;
+import com.application.paymentmidtranssrv.core.gateway.EmailGateway;
 import com.application.paymentmidtranssrv.core.gateway.PaymentCallbackGateway;
 import com.application.paymentmidtranssrv.core.gateway.PaymentGateway;
 import com.application.paymentmidtranssrv.domain.model.Payment;
@@ -23,21 +24,16 @@ public class CallbackNotificationUsecase {
     private final PaymentCallbackGateway paymentCallbackGateway;
     private final PaymentGateway paymentGateway;
     private final JsonUtility jsonUtility;
+    private final EmailGateway emailGateway;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = BusinessException.class)
     public void handleCallbackNotify(VaTransferCallbackRequest request) {
-        Payment payment = paymentGateway.findByOrderId(request.getOrderId());
-        log.info("Payment with orderId: {}", payment);
-        if (payment == null) {
-            throw new BusinessException("Payment data not found in db", HttpStatus.NOT_FOUND.value());
-        }
-
         try {
             log.info("Received transaction status: {}", request.getTransactionStatus());
             JsonNode callbackJson = jsonUtility.convertToEntityAttribute(request.toString());
             PaymentCallback constructPaymentCallback = PaymentCallback.builder()
-                .paymentId(payment.getPaymentId())
-                .customerId(payment.getCustomerId())
+                .transactionId(request.getTransactionId())
+                .orderId(request.getOrderId())
                 .callbacks(callbackJson.asText())
                 .build();
             log.info("Constructed payment callback: {}", JsonUtility.toJson(constructPaymentCallback));
@@ -49,9 +45,10 @@ public class CallbackNotificationUsecase {
                 paymentGateway.updatePayment(
                     request.getTransactionStatus(),
                     request.getOrderId(),
-                    payment.getPaymentId(),
-                    payment.getCustomerId());
+                    request.getTransactionId());
             }
+
+            // When Success payment status send email
         } catch (BusinessException e) {
             throw new BusinessException(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }

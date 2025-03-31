@@ -19,9 +19,9 @@ public class PaymentCallbackGatewayImpl implements PaymentCallbackGateway {
     public void writeCallbackOnDB(PaymentCallback paymentCallback) {
         paymentCallbackRepo.save(
             PaymentCallbackEntity.builder()
-            .paymentId(paymentCallback.getPaymentId())
-            .customerId(paymentCallback.getCustomerId())
-            .callbacks(paymentCallback.getCallbacks())
+            .transactionId(paymentCallback.getTransactionId())
+            .orderId(paymentCallback.getOrderId())
+            .dataCallbacks(paymentCallback.getCallbacks())
             .build());
     }
 }

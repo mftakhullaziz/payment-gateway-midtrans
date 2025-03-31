@@ -28,14 +28,14 @@ public class PaymentCallbackEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "payment_id")
-    private Long paymentId;
+    @Column(name = "transaction_id")
+    private String transactionId;
 
-    @Column(name = "customer_id")
-    private Long customerId;
+    @Column(name = "order_id")
+    private String orderId;
 
-    @Column(name = "callbacks", columnDefinition = "json")
-    private String callbacks;
+    @Column(name = "data_callbacks", columnDefinition = "json")
+    private String dataCallbacks;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

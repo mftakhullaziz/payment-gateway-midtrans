@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentCallback {
-    private Long paymentId;
-    private Long customerId;
+    private String transactionId;
+    private String orderId;
     private String callbacks;
 }
