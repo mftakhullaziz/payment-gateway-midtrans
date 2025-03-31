@@ -30,11 +30,10 @@ public class CallbackNotificationUsecase {
     public void handleCallbackNotify(VaTransferCallbackRequest request) {
         try {
             log.info("Received transaction status: {}", request.getTransactionStatus());
-            JsonNode callbackJson = jsonUtility.convertToEntityAttribute(request.toString());
             PaymentCallback constructPaymentCallback = PaymentCallback.builder()
                 .transactionId(request.getTransactionId())
                 .orderId(request.getOrderId())
-                .callbacks(callbackJson.asText())
+                .callbacks(request)
                 .build();
             log.info("Constructed payment callback: {}", JsonUtility.toJson(constructPaymentCallback));
 

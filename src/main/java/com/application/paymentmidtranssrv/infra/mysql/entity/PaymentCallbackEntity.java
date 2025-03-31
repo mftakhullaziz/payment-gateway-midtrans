@@ -1,6 +1,9 @@
 package com.application.paymentmidtranssrv.infra.mysql.entity;
 
+import com.application.paymentmidtranssrv.utility.JsonUtility;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,7 +38,8 @@ public class PaymentCallbackEntity {
     private String orderId;
 
     @Column(name = "data_callbacks", columnDefinition = "json")
-    private String dataCallbacks;
+    @Convert(converter = JsonUtility.class)
+    private JsonNode dataCallbacks;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
