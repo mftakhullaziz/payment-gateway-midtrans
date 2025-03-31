@@ -3,8 +3,9 @@ package com.application.paymentmidtranssrv.core.gateway.impl;
 import com.application.paymentmidtranssrv.app.annotation.Gateway;
 import com.application.paymentmidtranssrv.app.property.PaymentProperty;
 import com.application.paymentmidtranssrv.core.gateway.MidtransGateway;
+import com.application.paymentmidtranssrv.core.gateway.transform.VaTransferTransformer;
 import com.application.paymentmidtranssrv.domain.BankType;
-import com.application.paymentmidtranssrv.domain.model.PaymentMidtrans;
+import com.application.paymentmidtranssrv.domain.model.VaTransferMidtrans;
 import com.application.paymentmidtranssrv.domain.model.bank.BcaVa;
 import com.application.paymentmidtranssrv.domain.response.PaymentMidtransResponse;
 import com.application.paymentmidtranssrv.utility.Base64Utility;
@@ -28,37 +29,37 @@ public class MidtransGatewayImpl implements MidtransGateway {
 
     @SneakyThrows
     @Override
-    public PaymentMidtransResponse executePayMidtransBankTransfer(PaymentMidtrans paymentMidtrans) {
+    public PaymentMidtransResponse executePayMidtransBankTransfer(VaTransferMidtrans vaTransferMidtrans) {
 //        PaymentTypes paymentTypes = paymentMidtransDto.getPaymentTypes();
 //        return switch (paymentTypes) {
 //            case BANK_TRANSFER -> executeInvokeMidtrans(buildRequestBodyBankTransfer(paymentMidtransDto));
 //            case CREDIT_CARD -> executeInvokeMidtrans(buildRequestBodyCreditCard(paymentMidtransDto));
 //            default -> throw new RuntimeException("not found");
 //        };
-        return executeInvokeMidtrans(buildRequestBodyBankTransfer(paymentMidtrans));
+        return executeInvokeMidtrans(buildRequestBodyBankTransfer(vaTransferMidtrans));
     }
 
     @Override
-    public PaymentMidtransResponse executePayMidtransQRISAndEWallet(PaymentMidtrans paymentMidtrans) {
+    public PaymentMidtransResponse executePayMidtransQRISAndEWallet(VaTransferMidtrans vaTransferMidtrans) {
         return null;
     }
 
     @Override
-    public PaymentMidtransResponse executePayMidtransCreditCard(PaymentMidtrans paymentMidtrans) {
+    public PaymentMidtransResponse executePayMidtransCreditCard(VaTransferMidtrans vaTransferMidtrans) {
         return null;
     }
 
     @Override
-    public PaymentMidtransResponse executePayMidtransCSStore(PaymentMidtrans paymentMidtrans) {
+    public PaymentMidtransResponse executePayMidtransCSStore(VaTransferMidtrans vaTransferMidtrans) {
         return null;
     }
 
     @Override
-    public PaymentMidtransResponse executePayMidtransCardlessCredit(PaymentMidtrans paymentMidtrans) {
+    public PaymentMidtransResponse executePayMidtransCardlessCredit(VaTransferMidtrans vaTransferMidtrans) {
         return null;
     }
 
-    private Object buildRequestBodyCreditCard(PaymentMidtrans paymentMidtrans) {
+    private Object buildRequestBodyCreditCard(VaTransferMidtrans vaTransferMidtrans) {
         return null;
     }
 
@@ -67,7 +68,6 @@ public class MidtransGatewayImpl implements MidtransGateway {
             .writeValueAsString(requestBody));
 
         String serverKeyEncode = Base64Utility.encodeToBase64(paymentProperty.getMidtrans().getServerKey());
-        System.out.println("Encode server key: " + serverKeyEncode);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + serverKeyEncode);
@@ -106,24 +106,13 @@ public class MidtransGatewayImpl implements MidtransGateway {
         return objectMapper.treeToValue(jsonNode, PaymentMidtransResponse.class);
     }
 
-    private Object buildRequestBodyBankTransfer(PaymentMidtrans requestBody) {
+    private Object buildRequestBodyBankTransfer(VaTransferMidtrans requestBody) {
         BankType bankType = requestBody.getBankType();
         return switch (bankType) {
-            case BCA -> buildRequestBodyVaBca(requestBody);
+            case BCA -> VaTransferTransformer.transformToBCAVABody(requestBody);
             case BRI -> buildRequestBodyVaBri(requestBody);
             default -> throw new RuntimeException("payment type not found");
         };
-    }
-
-    private Object buildRequestBodyVaBca(PaymentMidtrans paymentMidtrans) {
-        return BcaVa.builder()
-            .paymentType(paymentMidtrans.getPaymentTypes().toString().toLowerCase())
-            .bankTransfer(new BcaVa.BankTransfer(paymentMidtrans.getBankType().toString().toLowerCase()))
-            .transactionDetails(new BcaVa.TransactionDetails(
-                paymentMidtrans.getOrderId(),
-                paymentMidtrans.getTotalPrice().intValue()
-            ))
-            .build();
     }
 
     private Object buildRequestBodyVaBri(Object requestBody) {

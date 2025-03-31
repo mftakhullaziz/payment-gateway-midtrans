@@ -22,7 +22,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		},
 		webEnvironment = RANDOM_PORT
 )
-class PaymentMidtransSrvApplicationTests {
+class VaTransferMidtransSrvApplicationTests {
 	@Container
 	@ServiceConnection
 	static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:9.2.0")
