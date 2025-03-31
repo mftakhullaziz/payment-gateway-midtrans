@@ -43,17 +43,14 @@ public class PaymentResponse {
     @JsonProperty(value = "expiry_time")
     private Timestamp expiryTime;
 
-    @JsonProperty(value = "fraud_status")
-    private String fraudStatus;
-
     @JsonProperty(value = "payment_type")
     private String paymentType;
 
     @JsonProperty(value = "payment_method")
     private String paymentMethod;
 
-    @JsonProperty(value = "payment_numbers")
-    private String paymentVaNumbers;
+    @JsonProperty(value = "virtual_account")
+    private String virtualAccount;
 
     @JsonProperty(value = "total_price")
     private Double totalPrice;

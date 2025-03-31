@@ -5,6 +5,7 @@ import com.application.paymentmidtranssrv.app.exception.BusinessException;
 import com.application.paymentmidtranssrv.core.gateway.CustomerGateway;
 import com.application.paymentmidtranssrv.core.gateway.EmailGateway;
 import com.application.paymentmidtranssrv.core.gateway.PaymentGateway;
+import com.application.paymentmidtranssrv.core.usecase.transform.VaTransferUsecaseTransformer;
 import com.application.paymentmidtranssrv.domain.PaymentTypes;
 import com.application.paymentmidtranssrv.domain.model.Payment;
 import com.application.paymentmidtranssrv.domain.model.VaTransferMidtrans;
@@ -39,7 +40,7 @@ public class VaTransferUsecase {
         TransactionStatus transactionStatus = transactionManager.getTransaction(defaultTransactionDefinition);
 
         try {
-            VaTransferMidtrans vaTransferMidtrans = paymentDtoMapper(paymentRequest);
+            VaTransferMidtrans vaTransferMidtrans = VaTransferUsecaseTransformer.transformToVATransferMidtrans(paymentRequest);
             if (vaTransferMidtrans == null) {
                 throw new BusinessException("Invalid payment-midtrans payload", HttpStatus.UNPROCESSABLE_ENTITY.value()); // 422
             }
@@ -63,7 +64,7 @@ public class VaTransferUsecase {
 
             emailGateway.publishEmailRemainderNotification(
                 paymentRequest.getCustomerInfo().getEmail(),
-                paymentRequest.getCustomerInfo().getName(),
+                paymentRequest.getCustomerInfo().getFirstname() + " " + paymentRequest.getCustomerInfo().getLastname(),
                 midtransResponse.getVaNumbers().getFirst().getVa_number(),
                 midtransResponse.getVaNumbers().getFirst().getBank(),
                 midtransResponse.getExpiryTime(),
@@ -126,22 +127,12 @@ public class VaTransferUsecase {
             .transactionTime(payment.getTransactionTime())
             .transactionStatus(payment.getTransactionStatus())
             .expiryTime(payment.getExpiryTime())
-            .fraudStatus(payment.getFraudStatus())
             .paymentType(payment.getPaymentType())
             .paymentMethod(payment.getPaymentMethod())
-            .paymentVaNumbers(payment.getPaymentVaNumbers())
+            .virtualAccount(payment.getPaymentVaNumbers())
             .totalPrice(payment.getTotalPrice())
             .totalTax(payment.getTotalTax())
             .totalDiscount(payment.getTotalDiscount())
-            .build();
-    }
-
-    private VaTransferMidtrans paymentDtoMapper(PaymentRequest request) {
-        return VaTransferMidtrans.builder()
-            .paymentTypes(request.getPaymentType())
-            .bankType(request.getBankType())
-            .orderId(request.getOrderId())
-            .totalPrice(request.getTotalPrice())
             .build();
     }
 

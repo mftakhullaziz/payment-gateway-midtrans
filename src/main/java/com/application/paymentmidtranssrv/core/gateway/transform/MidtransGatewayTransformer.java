@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class VaTransferTransformer {
+public class MidtransGatewayTransformer {
 
     public static BcaVa transformToBCAVABody(VaTransferMidtrans vaTransferMidtrans) {
         return BcaVa.builder()
