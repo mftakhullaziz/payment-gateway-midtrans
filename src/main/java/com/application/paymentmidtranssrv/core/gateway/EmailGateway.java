@@ -8,5 +8,12 @@ public interface EmailGateway {
                                            String expiredTime,
                                            String status);
 
-    void publishEmailStatusNotification();
+    void publishEmailStatusNotification(String email,
+                                        String name,
+                                        String orderId,
+                                        String virtualAccountNumber,
+                                        String bankType,
+                                        String settlementTime,
+                                        String status,
+                                        String totalAmount);
 }

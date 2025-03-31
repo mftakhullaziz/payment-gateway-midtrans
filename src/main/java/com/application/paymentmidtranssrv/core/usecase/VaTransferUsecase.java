@@ -5,9 +5,10 @@ import com.application.paymentmidtranssrv.app.exception.BusinessException;
 import com.application.paymentmidtranssrv.core.gateway.CustomerGateway;
 import com.application.paymentmidtranssrv.core.gateway.EmailGateway;
 import com.application.paymentmidtranssrv.core.gateway.PaymentGateway;
+import com.application.paymentmidtranssrv.core.usecase.transform.VaTransferUsecaseTransformer;
 import com.application.paymentmidtranssrv.domain.PaymentTypes;
 import com.application.paymentmidtranssrv.domain.model.Payment;
-import com.application.paymentmidtranssrv.domain.model.PaymentMidtrans;
+import com.application.paymentmidtranssrv.domain.model.VaTransferMidtrans;
 import com.application.paymentmidtranssrv.domain.request.CreatePaymentRequest;
 import com.application.paymentmidtranssrv.domain.request.PaymentRequest;
 import com.application.paymentmidtranssrv.domain.response.PaymentResponse;
@@ -39,8 +40,8 @@ public class VaTransferUsecase {
         TransactionStatus transactionStatus = transactionManager.getTransaction(defaultTransactionDefinition);
 
         try {
-            PaymentMidtrans paymentMidtrans = paymentDtoMapper(paymentRequest);
-            if (paymentMidtrans == null) {
+            VaTransferMidtrans vaTransferMidtrans = VaTransferUsecaseTransformer.transformToVATransferMidtrans(paymentRequest);
+            if (vaTransferMidtrans == null) {
                 throw new BusinessException("Invalid payment-midtrans payload", HttpStatus.UNPROCESSABLE_ENTITY.value()); // 422
             }
 
@@ -49,8 +50,8 @@ public class VaTransferUsecase {
                 throw new BusinessException("Invalid customer for payment", HttpStatus.NOT_FOUND.value());
             }
 
-            PaymentTypes paymentTypes = paymentMidtrans.getPaymentTypes();
-            PaymentMidtransResponse midtransResponse = createPaymentTransaction(paymentMidtrans, paymentTypes);
+            PaymentTypes paymentTypes = vaTransferMidtrans.getPaymentTypes();
+            PaymentMidtransResponse midtransResponse = createPaymentTransaction(vaTransferMidtrans, paymentTypes);
             if (midtransResponse == null) {
                 throw new BusinessException("Failed to create payment transaction with Midtrans", HttpStatus.BAD_GATEWAY.value()); // 502
             }
@@ -63,7 +64,7 @@ public class VaTransferUsecase {
 
             emailGateway.publishEmailRemainderNotification(
                 paymentRequest.getCustomerInfo().getEmail(),
-                paymentRequest.getCustomerInfo().getName(),
+                paymentRequest.getCustomerInfo().getFirstname() + " " + paymentRequest.getCustomerInfo().getLastname(),
                 midtransResponse.getVaNumbers().getFirst().getVa_number(),
                 midtransResponse.getVaNumbers().getFirst().getBank(),
                 midtransResponse.getExpiryTime(),
@@ -81,11 +82,11 @@ public class VaTransferUsecase {
     }
 
     private PaymentMidtransResponse createPaymentTransaction(
-        PaymentMidtrans paymentMidtrans, PaymentTypes paymentTypes)
+        VaTransferMidtrans vaTransferMidtrans, PaymentTypes paymentTypes)
     {
         return switch (paymentTypes) {
-            case BANK_TRANSFER -> midtransGateway.executePayMidtransBankTransfer(paymentMidtrans);
-            case CREDIT_CARD -> midtransGateway.executePayMidtransCreditCard(paymentMidtrans);
+            case BANK_TRANSFER -> midtransGateway.executePayMidtransBankTransfer(vaTransferMidtrans);
+            case CREDIT_CARD -> midtransGateway.executePayMidtransCreditCard(vaTransferMidtrans);
             default -> throw new BusinessException("enum not found", HttpStatus.UNPROCESSABLE_ENTITY.value());
         };
     }
@@ -126,22 +127,12 @@ public class VaTransferUsecase {
             .transactionTime(payment.getTransactionTime())
             .transactionStatus(payment.getTransactionStatus())
             .expiryTime(payment.getExpiryTime())
-            .fraudStatus(payment.getFraudStatus())
             .paymentType(payment.getPaymentType())
             .paymentMethod(payment.getPaymentMethod())
-            .paymentVaNumbers(payment.getPaymentVaNumbers())
+            .virtualAccount(payment.getPaymentVaNumbers())
             .totalPrice(payment.getTotalPrice())
             .totalTax(payment.getTotalTax())
             .totalDiscount(payment.getTotalDiscount())
-            .build();
-    }
-
-    private PaymentMidtrans paymentDtoMapper(PaymentRequest request) {
-        return PaymentMidtrans.builder()
-            .paymentTypes(request.getPaymentType())
-            .bankType(request.getBankType())
-            .orderId(request.getOrderId())
-            .totalPrice(request.getTotalPrice())
             .build();
     }
 

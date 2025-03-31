@@ -33,8 +33,6 @@ public class NotificationPaymentController {
         // paymentCallbackUsecase.process(request);
         callbackNotificationUsecase.handleCallbackNotify(request);
 
-        // When Success payment status send email
-
         // 3. Always return 200 OK (Midtrans expects it)
         return ResponseEntity.ok().build();
     }

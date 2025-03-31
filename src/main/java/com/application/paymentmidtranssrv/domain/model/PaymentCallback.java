@@ -1,5 +1,6 @@
 package com.application.paymentmidtranssrv.domain.model;
 
+import com.application.paymentmidtranssrv.domain.request.VaTransferCallbackRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentCallback {
-    private Long paymentId;
-    private Long customerId;
-    private String callbacks;
+    private String transactionId;
+    private String orderId;
+    private VaTransferCallbackRequest callbacks;
 }

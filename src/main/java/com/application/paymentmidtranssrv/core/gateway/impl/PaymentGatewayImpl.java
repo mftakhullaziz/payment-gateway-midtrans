@@ -52,13 +52,19 @@ public class PaymentGatewayImpl implements PaymentGateway {
     @Override
     public void updatePayment(String transactionStatus,
                               String orderId,
-                              Long paymentId,
-                              Long customerId) {
-        paymentRepo.findByOrderIdAndIdAndCustomerId(orderId, paymentId, customerId)
+                              String transactionId) {
+        paymentRepo.findByOrderIdAndTransactionId(orderId, transactionId)
             .ifPresent(payment -> {
                 payment.setTransactionStatus(transactionStatus);
                 paymentRepo.save(payment);
             });
+    }
+
+    @Override
+    public Long findCustomerIdByOrderIdAndTransactionId(String orderId, String transactionId) {
+        return paymentRepo.findByOrderIdAndTransactionId(orderId, transactionId)
+            .map(PaymentEntity::getCustomerId)
+            .orElse(null);
     }
 
     private static Payment constructPayment(PaymentEntity paymentEntity) {

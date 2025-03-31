@@ -5,6 +5,8 @@ import com.application.paymentmidtranssrv.core.gateway.PaymentCallbackGateway;
 import com.application.paymentmidtranssrv.domain.model.PaymentCallback;
 import com.application.paymentmidtranssrv.infra.mysql.entity.PaymentCallbackEntity;
 import com.application.paymentmidtranssrv.infra.mysql.repository.PaymentCallbackRepo;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -15,13 +17,18 @@ public class PaymentCallbackGatewayImpl implements PaymentCallbackGateway {
 
     private final PaymentCallbackRepo paymentCallbackRepo;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void writeCallbackOnDB(PaymentCallback paymentCallback) {
+        // transform to jsonNode
+        JsonNode jsonCallbacks = objectMapper.valueToTree(paymentCallback.getCallbacks());
+
         paymentCallbackRepo.save(
             PaymentCallbackEntity.builder()
-            .paymentId(paymentCallback.getPaymentId())
-            .customerId(paymentCallback.getCustomerId())
-            .callbacks(paymentCallback.getCallbacks())
+            .transactionId(paymentCallback.getTransactionId())
+            .orderId(paymentCallback.getOrderId())
+            .dataCallbacks(jsonCallbacks)
             .build());
     }
 }

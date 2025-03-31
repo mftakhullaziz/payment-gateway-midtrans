@@ -6,11 +6,13 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      connection-timeout: 20000
-      maximum-pool-size: 5
-      idle-timeout: 300000
-      minimum-idle: 2
+      minimum-idle: 5
+      maximum-pool-size: 10
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
   jpa:
     show-sql: true
     hibernate:
@@ -19,9 +21,8 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
         storage_engine: innodb  # Set the storage engine to InnoDB
-    open-in-view: false
+    open-in-view: true
 
 springdoc:
   api-docs:
@@ -61,3 +62,16 @@ application:
         username: ${MAILTRAP_USERNAME}
         password: ${MAILTRAP_PASSWORD}
         sender: store.example.notification@noreply.com
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework: DEBUG
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: TRACE
+    org.hibernate.resource.transaction: WARN
+    org.apache.catalina.core.AprLifecycleListener: WARN
+    org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLogger: OFF
+    com.zaxxer.hikari: DEBUG
+#  pattern:
+#    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"

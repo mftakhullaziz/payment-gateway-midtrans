@@ -16,45 +16,51 @@ import java.util.List;
 @NoArgsConstructor
 public class PaymentRequest {
 
-    @JsonProperty(value = "payment_type")
+    @JsonProperty("transfer_type")
     private PaymentTypes paymentType;
 
-    @JsonProperty(value = "transfer_via")
+    @JsonProperty("transfer_bank")
     private BankType bankType;
 
-    @JsonProperty(value = "customer")
+    @JsonProperty("customer")
     private CustomerInfo customerInfo;
 
-    @JsonProperty(value = "total_price")
+    @JsonProperty("total_price")
     private Double totalPrice;
 
-    @JsonProperty(value = "total_tax")
+    @JsonProperty("total_tax")
     private Double totalTax;
 
-    @JsonProperty(value = "total_discount")
+    @JsonProperty("total_discount")
     private Double totalDiscount;
 
-    @JsonProperty(value = "order_id")
+    @JsonProperty("order_id")
     private String orderId;
 
-    @JsonProperty(value = "product_items")
-    private List<ProductItems> productItems;
+    @JsonProperty("order_items")
+    private List<OrderItems> orderItems;
+
+    @JsonProperty("sub_company")
+    private SubCompanyCode subCompanyCode;
 
     @Data
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class CustomerInfo {
-        @JsonProperty(value = "customer_id")
+        @JsonProperty("customer_id")
         private Long customerId;
 
-        @JsonProperty(value = "email")
+        @JsonProperty("email")
         private String email;
 
-        @JsonProperty(value = "name")
-        private String name;
+        @JsonProperty("firstname")
+        private String firstname;
 
-        @JsonProperty(value = "phone")
+        @JsonProperty("lastname")
+        private String lastname;
+
+        @JsonProperty("phone")
         private String phone;
     }
 
@@ -62,21 +68,35 @@ public class PaymentRequest {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ProductItems {
-        @JsonProperty(value = "product_name")
-        private String productName;
+    public static class OrderItems {
+        @JsonProperty("item_id")
+        private String itemId;
 
-        @JsonProperty(value = "product_price")
-        private String productPrice;
+        @JsonProperty("item_name")
+        private String itemName;
 
-        @JsonProperty(value = "product_amount")
-        private String productAmount;
+        @JsonProperty("item_price")
+        private Double itemPrice;
 
-        @JsonProperty(value = "product_discount")
-        private Double productDiscount;
+        @JsonProperty("item_amount")
+        private Double itemAmount;
 
-        @JsonProperty(value = "product_tax")
-        private Double productTax;
+        @JsonProperty("item_discount")
+        private Double itemDiscount;
+
+        @JsonProperty("item_tax")
+        private Double itemTax;
+
+        @JsonProperty("item_qty")
+        private int itemQty;
     }
 
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SubCompanyCode {
+        @JsonProperty("company_code")
+        private String companyCode;
+    }
 }

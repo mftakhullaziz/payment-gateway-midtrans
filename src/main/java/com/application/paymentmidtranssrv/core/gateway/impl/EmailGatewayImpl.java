@@ -33,30 +33,51 @@ public class EmailGatewayImpl implements EmailGateway {
         // Replace placeholders manually
         String htmlContent = htmlTemplate
             .replace("{{name}}", name)
-            .replace("{{bankType}}", bankType)
+            .replace("{{bankType}}", bankType.toUpperCase())
             .replace("{{virtualAccountNumber}}", virtualAccountNumber)
             .replace("{{status}}", status)
             .replace("{{expiredTime}}", String.valueOf(expiredTime))
             .replace("{{year}}", String.valueOf(java.time.Year.now().getValue()));
 
+        sendMailExecutor(htmlContent, email, "Reminder Payment!");
+    }
+
+    @Override
+    public void publishEmailStatusNotification(String email,
+                                               String name,
+                                               String orderId,
+                                               String virtualAccountNumber,
+                                               String bankType,
+                                               String settlementTime,
+                                               String status,
+                                               String totalAmount) {
+        String htmlTemplate = loadTemplate("payment-status-notification.html");
+        String htmlContent = htmlTemplate
+            .replace("{{name}}", name)
+            .replace("{{orderId}}", orderId)
+            .replace("{{bankType}}", bankType.toUpperCase())
+            .replace("{{amount}}", totalAmount)
+            .replace("{{virtualAccountNumber}}", virtualAccountNumber)
+            .replace("{{status}}", status)
+            .replace("{{paidAt}}", String.valueOf(settlementTime))
+            .replace("{{year}}", String.valueOf(java.time.Year.now().getValue()));
+        sendMailExecutor(htmlContent, email, "Payment Successfully!");
+    }
+
+    private void sendMailExecutor(String htmlContent, String email, String subject) {
         try {
             Session session = createSession();
             Message message = new MimeMessage(session);
 
             message.setFrom(new InternetAddress(emailProperty.getMailDev().getSender()));
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));
-            message.setSubject("Reminder to Payment");
+            message.setSubject(subject);
             message.setContent(htmlContent, "text/html; charset=utf-8");
 
             Transport.send(message);
         } catch (Exception e) {
             throw new RuntimeException("Unexpected server error: " + e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void publishEmailStatusNotification() {
-
     }
 
     private Session createSession() {

@@ -1,6 +1,9 @@
 package com.application.paymentmidtranssrv.infra.mysql.entity;
 
+import com.application.paymentmidtranssrv.utility.JsonUtility;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,14 +31,15 @@ public class PaymentCallbackEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "payment_id")
-    private Long paymentId;
+    @Column(name = "transaction_id")
+    private String transactionId;
 
-    @Column(name = "customer_id")
-    private Long customerId;
+    @Column(name = "order_id")
+    private String orderId;
 
-    @Column(name = "callbacks", columnDefinition = "json")
-    private String callbacks;
+    @Column(name = "data_callbacks", columnDefinition = "json")
+    @Convert(converter = JsonUtility.class)
+    private JsonNode dataCallbacks;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

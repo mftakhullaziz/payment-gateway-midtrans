@@ -36,7 +36,8 @@ public class JsonUtility implements AttributeConverter<JsonNode, String> {
         try {
             return new ObjectMapper()
                 .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(object);
+                .writeValueAsString(object)
+                .replace("\n", "");
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Error converting Object to String", e);
         }
