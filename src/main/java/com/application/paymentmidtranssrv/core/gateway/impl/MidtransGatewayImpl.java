@@ -1,13 +1,13 @@
 package com.application.paymentmidtranssrv.core.gateway.impl;
 
-import com.application.paymentmidtranssrv.app.annotation.Gateway;
-import com.application.paymentmidtranssrv.app.property.PaymentProperty;
+import com.application.paymentmidtranssrv.facade.annotation.Gateway;
+import com.application.paymentmidtranssrv.facade.property.PaymentProperty;
 import com.application.paymentmidtranssrv.core.gateway.MidtransGateway;
 import com.application.paymentmidtranssrv.core.gateway.transform.MidtransGatewayTransformer;
 import com.application.paymentmidtranssrv.domain.BankType;
 import com.application.paymentmidtranssrv.domain.model.VaTransferMidtrans;
 import com.application.paymentmidtranssrv.domain.response.PaymentMidtransResponse;
-import com.application.paymentmidtranssrv.utility.Base64Utility;
+import com.application.paymentmidtranssrv.facade.utility.Base64Utility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

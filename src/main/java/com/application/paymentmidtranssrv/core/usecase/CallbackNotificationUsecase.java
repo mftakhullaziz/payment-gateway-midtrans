@@ -1,7 +1,7 @@
 package com.application.paymentmidtranssrv.core.usecase;
 
-import com.application.paymentmidtranssrv.app.annotation.Usecase;
-import com.application.paymentmidtranssrv.app.exception.BusinessException;
+import com.application.paymentmidtranssrv.facade.annotation.Usecase;
+import com.application.paymentmidtranssrv.facade.exception.BusinessException;
 import com.application.paymentmidtranssrv.core.gateway.CustomerGateway;
 import com.application.paymentmidtranssrv.core.gateway.EmailGateway;
 import com.application.paymentmidtranssrv.core.gateway.PaymentCallbackGateway;
@@ -9,7 +9,7 @@ import com.application.paymentmidtranssrv.core.gateway.PaymentGateway;
 import com.application.paymentmidtranssrv.domain.model.Customer;
 import com.application.paymentmidtranssrv.domain.model.PaymentCallback;
 import com.application.paymentmidtranssrv.domain.request.VaTransferCallbackRequest;
-import com.application.paymentmidtranssrv.utility.JsonUtility;
+import com.application.paymentmidtranssrv.facade.utility.JsonUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Log4j2
 @RestController
-@Tag(name = "Payment - Core API")
+@Tag(name = "Coreapi - Payment")
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/v1/coreapi/payment")
 public class CoreapiPaymentController {
@@ -27,14 +27,18 @@ public class CoreapiPaymentController {
     private final CCDCUsecase ccdcUsecase;
     private final SnapTransferUsecase snapTransferUsecase;
 
-    @PostMapping("va-transfer")
-    public ResponseEntity<Response<PaymentResponse>> vaTransferPayment(@Valid @RequestBody PaymentRequest request) {
+    public static final String VIRTUAL_ACCOUNT_API = "/virtual-account/charge";
+
+    @PostMapping(value = VIRTUAL_ACCOUNT_API)
+    public ResponseEntity<Response<PaymentResponse>> virtualAccountCharge(
+        @Valid @RequestBody PaymentRequest request)
+    {
         PaymentResponse paymentResponse = vaTransferUsecase.vaTransferPayment(request);
         Response<PaymentResponse> response = Response.created(paymentResponse);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("ccdc-transfer")
+    @PostMapping("ccdc/charge")
     public ResponseEntity<Response<PaymentResponse>> ccdcPayment(@Valid @RequestBody PaymentRequest request) {
         PaymentResponse paymentResponse = ccdcUsecase.ccdcTransferPayment(request);
         Response<PaymentResponse> response = Response.created(paymentResponse);

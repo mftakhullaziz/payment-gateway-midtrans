@@ -1,10 +1,9 @@
 package com.application.paymentmidtranssrv.core.gateway.impl;
 
-import com.application.paymentmidtranssrv.app.annotation.Gateway;
+import com.application.paymentmidtranssrv.facade.annotation.Gateway;
 import com.application.paymentmidtranssrv.core.gateway.CustomerGateway;
 import com.application.paymentmidtranssrv.domain.model.Customer;
-import com.application.paymentmidtranssrv.infra.mysql.entity.CustomerEntity;
-import com.application.paymentmidtranssrv.infra.mysql.repository.CustomerRepo;
+import com.application.paymentmidtranssrv.infrastructure.mysql.repository.CustomerRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 

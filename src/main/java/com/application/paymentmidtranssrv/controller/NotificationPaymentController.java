@@ -2,7 +2,7 @@ package com.application.paymentmidtranssrv.controller;
 
 import com.application.paymentmidtranssrv.core.usecase.CallbackNotificationUsecase;
 import com.application.paymentmidtranssrv.domain.request.VaTransferCallbackRequest;
-import com.application.paymentmidtranssrv.utility.JsonUtility;
+import com.application.paymentmidtranssrv.facade.utility.JsonUtility;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

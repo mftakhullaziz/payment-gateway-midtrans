@@ -1,10 +1,10 @@
 package com.application.paymentmidtranssrv.core.gateway.impl;
 
-import com.application.paymentmidtranssrv.app.annotation.Gateway;
+import com.application.paymentmidtranssrv.facade.annotation.Gateway;
 import com.application.paymentmidtranssrv.core.gateway.PaymentCallbackGateway;
 import com.application.paymentmidtranssrv.domain.model.PaymentCallback;
-import com.application.paymentmidtranssrv.infra.mysql.entity.PaymentCallbackEntity;
-import com.application.paymentmidtranssrv.infra.mysql.repository.PaymentCallbackRepo;
+import com.application.paymentmidtranssrv.infrastructure.mysql.entity.PaymentCallbackEntity;
+import com.application.paymentmidtranssrv.infrastructure.mysql.repository.PaymentCallbackRepo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

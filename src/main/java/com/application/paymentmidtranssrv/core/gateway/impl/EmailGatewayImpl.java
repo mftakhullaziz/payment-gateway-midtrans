@@ -1,7 +1,7 @@
 package com.application.paymentmidtranssrv.core.gateway.impl;
 
-import com.application.paymentmidtranssrv.app.annotation.Gateway;
-import com.application.paymentmidtranssrv.app.property.EmailProperty;
+import com.application.paymentmidtranssrv.facade.annotation.Gateway;
+import com.application.paymentmidtranssrv.facade.property.EmailProperty;
 import com.application.paymentmidtranssrv.core.gateway.EmailGateway;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;

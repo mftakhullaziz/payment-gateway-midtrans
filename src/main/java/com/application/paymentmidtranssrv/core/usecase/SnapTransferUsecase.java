@@ -1,6 +1,6 @@
 package com.application.paymentmidtranssrv.core.usecase;
 
-import com.application.paymentmidtranssrv.app.annotation.Usecase;
+import com.application.paymentmidtranssrv.facade.annotation.Usecase;
 import com.application.paymentmidtranssrv.domain.request.PaymentRequest;
 import com.application.paymentmidtranssrv.domain.response.PaymentResponse;
 import jakarta.validation.Valid;
