@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Log4j2
 @RestController
-@Tag(name = "Payments")
+@Tag(name = "Payment - Core API")
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/payment")
-public class PaymentController {
+@RequestMapping(value = "/api/v1/coreapi/payment")
+public class CoreapiPaymentController {
 
     private final VaTransferUsecase vaTransferUsecase;
     private final CCDCUsecase ccdcUsecase;

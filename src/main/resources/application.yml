@@ -41,6 +41,8 @@ application:
         client-key: ${CLIENT_KEY}
         server-key: ${SERVER_KEY}
         base-url: "https://api.sandbox.midtrans.com"
+        core-api:
+          payment-charge: "/v2/charge"
         payment-uri: "https://api.sandbox.midtrans.com/v2/charge"
         payment:
           charge: "/v2/charge"
