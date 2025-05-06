@@ -1,7 +1,7 @@
 package com.integration.paymentmidtrans.adapter.outbound.mapper;
 
-import com.integration.paymentmidtrans.core.dto.VaTransferMidtrans;
-import com.integration.paymentmidtrans.core.dto.BcaVa;
+import com.integration.paymentmidtrans.shared.dto.coreapis.VaTransferDTO;
+import com.integration.paymentmidtrans.shared.dto.coreapis.BcaVa;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -10,23 +10,23 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MidtransGatewayTransformer {
 
-    public static BcaVa transformToBCAVABody(VaTransferMidtrans vaTransferMidtrans) {
+    public static BcaVa transformToBCAVABody(VaTransferDTO vaTransferDTO) {
         return BcaVa.builder()
-            .paymentType(vaTransferMidtrans.getPaymentTypes().toString().toLowerCase())
+            .paymentType(vaTransferDTO.getPaymentTypes().toString().toLowerCase())
 
             .transactionDetails(BcaVa.TransactionDetails.builder()
-                .orderId(vaTransferMidtrans.getOrderId())
-                .grossAmount(vaTransferMidtrans.getTotalPrice().intValue())
+                .orderId(vaTransferDTO.getOrderId())
+                .grossAmount(vaTransferDTO.getTotalPrice().intValue())
                 .build())
 
             .customerDetails(BcaVa.CustomerDetails.builder()
-                .email(vaTransferMidtrans.getCustomerInfo().getEmail())
-                .firstName(vaTransferMidtrans.getCustomerInfo().getFirstname())
-                .lastName(vaTransferMidtrans.getCustomerInfo().getLastname())
-                .phone(vaTransferMidtrans.getCustomerInfo().getPhone())
+                .email(vaTransferDTO.getCustomerInfo().getEmail())
+                .firstName(vaTransferDTO.getCustomerInfo().getFirstname())
+                .lastName(vaTransferDTO.getCustomerInfo().getLastname())
+                .phone(vaTransferDTO.getCustomerInfo().getPhone())
                 .build())
 
-            .itemDetails(vaTransferMidtrans.getOrderItems().stream().map(item -> BcaVa.ItemDetail.builder()
+            .itemDetails(vaTransferDTO.getOrderItems().stream().map(item -> BcaVa.ItemDetail.builder()
                 .id(item.getItemId())
                 .name(item.getItemName())
                 .price(item.getItemPrice().intValue())
@@ -34,7 +34,7 @@ public class MidtransGatewayTransformer {
                 .build()).toList())
 
             .bankTransfer(BcaVa.BankTransfer.builder()
-                .bank(vaTransferMidtrans.getBankType().toString().toLowerCase())
+                .bank(vaTransferDTO.getBankType().toString().toLowerCase())
                 // .vaNumber(paymentMidtrans.getVaNumber())
                 .freeText(BcaVa.FreeText.builder()
                     .inquiry(List.of(BcaVa.TextContent.builder()
@@ -47,7 +47,7 @@ public class MidtransGatewayTransformer {
                         .build()))
                     .build())
                 .bca(BcaVa.Bca.builder()
-                    .subCompanyCode(vaTransferMidtrans.getSubCompanyCode().getCompanyCode())
+                    .subCompanyCode(vaTransferDTO.getSubCompanyCode().getCompanyCode())
                     .build())
                 .build())
 

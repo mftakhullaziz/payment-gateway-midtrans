@@ -1,6 +1,6 @@
 package com.integration.paymentmidtrans.adapter.inbound.usecase;
 
-import com.integration.paymentmidtrans.core.dto.VaTransferMidtrans;
+import com.integration.paymentmidtrans.shared.dto.coreapis.VaTransferDTO;
 import com.integration.paymentmidtrans.adapter.inbound.delivery.coreapis.request.PaymentRequest;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VaTransferUsecaseTransformer {
 
-    public static VaTransferMidtrans transformToVATransferMidtrans(PaymentRequest request) {
-        return VaTransferMidtrans.builder()
+    public static VaTransferDTO transformToVATransferMidtrans(PaymentRequest request) {
+        return VaTransferDTO.builder()
             .paymentTypes(request.getPaymentType())
             .bankType(request.getBankType())
             .orderId(request.getOrderId())
             .totalPrice(request.getTotalPrice())
             .totalTax(request.getTotalTax())
             .totalDiscount(request.getTotalDiscount())
-            .customerInfo(VaTransferMidtrans.CustomerInfo.builder()
+            .customerInfo(VaTransferDTO.CustomerInfo.builder()
                 .customerId(request.getCustomerInfo().getCustomerId())
                 .email(request.getCustomerInfo().getEmail())
                 .firstname(request.getCustomerInfo().getFirstname())
@@ -24,7 +24,7 @@ public class VaTransferUsecaseTransformer {
                 .phone(request.getCustomerInfo().getPhone())
                 .build())
             .orderItems(request.getOrderItems().stream().map(
-                itemRequest -> VaTransferMidtrans.OrderItems.builder()
+                itemRequest -> VaTransferDTO.OrderItems.builder()
                     .itemId(itemRequest.getItemId())
                     .itemName(itemRequest.getItemName())
                     .itemPrice(itemRequest.getItemPrice())
@@ -34,7 +34,7 @@ public class VaTransferUsecaseTransformer {
                     .itemQuantity(itemRequest.getItemQty())
                     .build()
             ).toList())
-            .subCompanyCode(VaTransferMidtrans.SubCompanyCode.builder()
+            .subCompanyCode(VaTransferDTO.SubCompanyCode.builder()
                 .companyCode(request.getSubCompanyCode().getCompanyCode())
                 .build())
             .build();

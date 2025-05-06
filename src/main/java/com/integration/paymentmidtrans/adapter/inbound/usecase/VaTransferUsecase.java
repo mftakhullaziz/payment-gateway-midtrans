@@ -2,16 +2,16 @@ package com.integration.paymentmidtrans.adapter.inbound.usecase;
 
 import com.integration.paymentmidtrans.shared.annotation.Usecase;
 import com.integration.paymentmidtrans.shared.exception.BusinessException;
-import com.integration.paymentmidtrans.core.ports.outbound.CustomerGateway;
-import com.integration.paymentmidtrans.core.ports.outbound.EmailGateway;
-import com.integration.paymentmidtrans.core.ports.outbound.PaymentGateway;
+import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.CustomerJPAOutboundPort;
+import com.integration.paymentmidtrans.ports.outbound.email.EmailOutboundPort;
+import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.PaymentJPAOutboundPort;
 import com.integration.paymentmidtrans.shared.enums.PaymentTypes;
-import com.integration.paymentmidtrans.core.dto.Payment;
-import com.integration.paymentmidtrans.core.dto.VaTransferMidtrans;
+import com.integration.paymentmidtrans.shared.dto.coreapis.Payment;
+import com.integration.paymentmidtrans.shared.dto.coreapis.VaTransferDTO;
 import com.integration.paymentmidtrans.adapter.inbound.delivery.coreapis.request.CreatePaymentRequest;
 import com.integration.paymentmidtrans.adapter.inbound.delivery.coreapis.request.PaymentRequest;
 import com.integration.paymentmidtrans.adapter.inbound.delivery.coreapis.response.PaymentResponse;
-import com.integration.paymentmidtrans.core.ports.outbound.MidtransGateway;
+import com.integration.paymentmidtrans.ports.outbound.midtrans.MidtransCoreAPIOutboundPort;
 import com.integration.paymentmidtrans.adapter.inbound.delivery.coreapis.response.PaymentMidtransResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -28,10 +28,10 @@ import java.sql.Timestamp;
 @RequiredArgsConstructor
 public class VaTransferUsecase {
 
-    private final CustomerGateway customerGateway;
-    private final PaymentGateway paymentGateway;
-    private final MidtransGateway midtransGateway;
-    private final EmailGateway emailGateway;
+    private final CustomerJPAOutboundPort customerJPAOutboundPort;
+    private final PaymentJPAOutboundPort paymentJPAOutboundPort;
+    private final MidtransCoreAPIOutboundPort midtransCoreAPIOutboundPort;
+    private final EmailOutboundPort emailOutboundPort;
     private final PlatformTransactionManager transactionManager;
 
     @Transactional(rollbackFor = BusinessException.class)
@@ -41,29 +41,29 @@ public class VaTransferUsecase {
         TransactionStatus transactionStatus = transactionManager.getTransaction(defaultTransactionDefinition);
 
         try {
-            VaTransferMidtrans vaTransferMidtrans = VaTransferUsecaseTransformer.transformToVATransferMidtrans(paymentRequest);
-            if (vaTransferMidtrans == null) {
+            VaTransferDTO vaTransferDTO = VaTransferUsecaseTransformer.transformToVATransferMidtrans(paymentRequest);
+            if (vaTransferDTO == null) {
                 throw new BusinessException("Invalid payment-midtrans payload", HttpStatus.UNPROCESSABLE_ENTITY.value()); // 422
             }
 
-            Boolean customerExist = customerGateway.checkCustomerAndHasRole(paymentRequest.getCustomerInfo().getEmail(), "CUSTOMER");
+            Boolean customerExist = customerJPAOutboundPort.checkCustomerAndHasRole(paymentRequest.getCustomerInfo().getEmail(), "CUSTOMER");
             if (Boolean.FALSE.equals(customerExist)) {
                 throw new BusinessException("Invalid customer for payment", HttpStatus.NOT_FOUND.value());
             }
 
-            PaymentTypes paymentTypes = vaTransferMidtrans.getPaymentTypes();
-            PaymentMidtransResponse midtransResponse = createPaymentTransaction(vaTransferMidtrans, paymentTypes);
+            PaymentTypes paymentTypes = vaTransferDTO.getPaymentTypes();
+            PaymentMidtransResponse midtransResponse = createPaymentTransaction(vaTransferDTO, paymentTypes);
             if (midtransResponse == null) {
                 throw new BusinessException("Failed to create payment transaction with Midtrans", HttpStatus.BAD_GATEWAY.value()); // 502
             }
 
             CreatePaymentRequest createPaymentRequest = createPaymentRequests(paymentRequest, midtransResponse);
-            Payment payment = paymentGateway.savePaymentTransaction(createPaymentRequest);
+            Payment payment = paymentJPAOutboundPort.savePaymentTransaction(createPaymentRequest);
             if (payment == null) {
                 throw new BusinessException("Failed to persist payment transaction to database", HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
             }
 
-            emailGateway.publishEmailRemainderNotification(
+            emailOutboundPort.publishEmailRemainderNotification(
                 paymentRequest.getCustomerInfo().getEmail(),
                 paymentRequest.getCustomerInfo().getFirstname() + " " + paymentRequest.getCustomerInfo().getLastname(),
                 midtransResponse.getVaNumbers().getFirst().getVa_number(),
@@ -83,11 +83,11 @@ public class VaTransferUsecase {
     }
 
     private PaymentMidtransResponse createPaymentTransaction(
-        VaTransferMidtrans vaTransferMidtrans, PaymentTypes paymentTypes)
+      VaTransferDTO vaTransferDTO, PaymentTypes paymentTypes)
     {
         return switch (paymentTypes) {
-            case BANK_TRANSFER -> midtransGateway.executePayMidtransBankTransfer(vaTransferMidtrans);
-            case CREDIT_CARD -> midtransGateway.executePayMidtransCreditCard(vaTransferMidtrans);
+            case BANK_TRANSFER -> midtransCoreAPIOutboundPort.executePayMidtransBankTransfer(vaTransferDTO);
+            case CREDIT_CARD -> midtransCoreAPIOutboundPort.executePayMidtransCreditCard(vaTransferDTO);
             default -> throw new BusinessException("enum not found", HttpStatus.UNPROCESSABLE_ENTITY.value());
         };
     }

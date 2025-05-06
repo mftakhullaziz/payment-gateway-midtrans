@@ -8,7 +8,7 @@ import com.integration.paymentmidtrans.adapter.inbound.usecase.VAChargeUsecase;
 import com.integration.paymentmidtrans.adapter.inbound.delivery.coreapis.request.PaymentRequest;
 import com.integration.paymentmidtrans.adapter.inbound.delivery.coreapis.response.PaymentResponse;
 import com.integration.paymentmidtrans.adapter.inbound.usecase.VaTransferUsecase;
-import com.integration.paymentmidtrans.core.ports.inbound.usecase.iCoreAPIPaymentUCPort;
+import com.integration.paymentmidtrans.ports.inbound.usecase.iCoreAPIPaymentUCPort;
 import com.integration.paymentmidtrans.shared.payload.Response;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -30,18 +30,40 @@ public class APICorePaymentController {
   private final VaTransferUsecase vaTransferUsecase;
   private final CCDCUsecase ccdcUsecase;
   private final SnapTransferUsecase snapTransferUsecase;
-  private final VAChargeUsecase vaChargeUsecase;
+//  private final VAChargeUsecase vaChargeUsecase;
 
   private final iCoreAPIPaymentUCPort iCoreAPIPaymentUCPort;
 
   public static final String VIRTUAL_ACCOUNT_API = "/coreapi/virtual-account";
+  public static final String CCD_API = "/coreapi/ccdc";
+  public static final String SNAP_TRANSFER_API = "/coreapi/snap-transfer";
 
   @PostMapping(value = VIRTUAL_ACCOUNT_API)
-  public ResponseEntity<Response<VAChargeResponse>> vaChargeCoreapi(@RequestBody VAChargeRequest vaChargeRequest) {
+  public ResponseEntity<Response<VAChargeResponse>> vaChargeCoreapi(@RequestBody @Valid VAChargeRequest vaChargeRequest) {
     APICorePaymentPresenter presenter = new APICorePaymentPresenter();
-    iCoreAPIPaymentUCPort.paymentCoreAPIMidtransExecutor("", presenter);
-    return presenter.getView();
+    iCoreAPIPaymentUCPort.vaExecutor(vaChargeRequest, presenter);
+    return presenter.getViewVAChargeResponse();
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   @PostMapping(value =  VIRTUAL_ACCOUNT_API)
   public ResponseEntity<Response<PaymentResponse>> virtualAccountCharge(

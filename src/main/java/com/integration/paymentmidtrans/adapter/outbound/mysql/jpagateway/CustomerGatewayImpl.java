@@ -1,18 +1,18 @@
 package com.integration.paymentmidtrans.adapter.outbound.mysql.jpagateway;
 
 import com.integration.paymentmidtrans.shared.annotation.Gateway;
-import com.integration.paymentmidtrans.core.ports.outbound.CustomerGateway;
-import com.integration.paymentmidtrans.core.dto.Customer;
-import com.integration.paymentmidtrans.core.ports.outbound.repository.CustomerRepo;
+import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.CustomerJPAOutboundPort;
+import com.integration.paymentmidtrans.shared.dto.coreapis.Customer;
+import com.integration.paymentmidtrans.ports.outbound.mysql.repository.CustomerRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Gateway
 @RequiredArgsConstructor
-public class CustomerGatewayImpl implements CustomerGateway {
+public class CustomerGatewayImpl implements CustomerJPAOutboundPort {
 
-    private final CustomerRepo customerRepo;
+    private final CustomerRepositoryPort customerRepo;
 
     @Override
     public Boolean checkCustomerAndHasRole(String email, String customer) {

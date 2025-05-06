@@ -2,13 +2,13 @@ package com.integration.paymentmidtrans.application.config;
 
 import com.integration.paymentmidtrans.application.property.EmailProperty;
 import com.integration.paymentmidtrans.application.property.PaymentProperty;
-import com.integration.paymentmidtrans.core.ports.outbound.repository.PaymentRepo;
-import com.integration.paymentmidtrans.core.ports.outbound.EmailGateway;
-import com.integration.paymentmidtrans.core.ports.outbound.PaymentGateway;
-import com.integration.paymentmidtrans.adapter.outbound.email.EmailGatewayImpl;
+import com.integration.paymentmidtrans.ports.outbound.mysql.repository.PaymentRepositoryPort;
+import com.integration.paymentmidtrans.ports.outbound.email.EmailOutboundPort;
+import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.PaymentJPAOutboundPort;
+import com.integration.paymentmidtrans.adapter.outbound.email.EmailOutboundAdapter;
 import com.integration.paymentmidtrans.adapter.outbound.mysql.jpagateway.PaymentGatewayImpl;
-import com.integration.paymentmidtrans.core.ports.outbound.MidtransGateway;
-import com.integration.paymentmidtrans.adapter.outbound.midtrans.MidtransGatewayImpl;
+import com.integration.paymentmidtrans.ports.outbound.midtrans.MidtransCoreAPIOutboundPort;
+import com.integration.paymentmidtrans.adapter.outbound.midtrans.MidtransCoreAPIOutboundAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,18 +16,18 @@ import org.springframework.context.annotation.Configuration;
 public class ServiceConfig {
 
     @Bean
-    public MidtransGateway midtransGateway(PaymentProperty paymentProperty) {
-        return new MidtransGatewayImpl(paymentProperty);
+    public MidtransCoreAPIOutboundPort midtransGateway(PaymentProperty paymentProperty) {
+        return new MidtransCoreAPIOutboundAdapter(paymentProperty);
     }
 
     @Bean
-    public PaymentGateway paymentGateway(PaymentRepo paymentRepo) {
-        return new PaymentGatewayImpl(paymentRepo);
+    public PaymentJPAOutboundPort paymentGateway(PaymentRepositoryPort paymentRepositoryPort) {
+        return new PaymentGatewayImpl(paymentRepositoryPort);
     }
 
     @Bean
-    public EmailGateway emailGateway(EmailProperty emailProperty) {
-        return new EmailGatewayImpl(emailProperty);
+    public EmailOutboundPort emailGateway(EmailProperty emailProperty) {
+        return new EmailOutboundAdapter(emailProperty);
     }
 
 //    @Bean

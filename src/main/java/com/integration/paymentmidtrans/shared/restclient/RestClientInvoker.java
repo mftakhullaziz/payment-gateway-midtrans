@@ -2,6 +2,8 @@ package com.integration.paymentmidtrans.shared.restclient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -10,6 +12,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Map;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Log4j2
 public class RestClientInvoker {
 
@@ -20,7 +23,7 @@ public class RestClientInvoker {
                       Map<String, String> additionalHeaders,
                       Class<T> responseType,
                       String basicAuthToken) throws JsonProcessingException {
-        log.info("[RestClient-POST] Request Body: {}",
+        log.info("[restClientPost] Request body: {}",
             OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(requestBody));
 
         HttpHeaders headers = new HttpHeaders();
@@ -40,7 +43,7 @@ public class RestClientInvoker {
             .retrieve()
             .toEntity(responseType);
 
-        log.info("[RestClient-POST] Raw Response: {}",
+        log.info("[restClientPost] Raw response: {}",
             OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(responseEntity));
 
         return responseEntity.getBody();

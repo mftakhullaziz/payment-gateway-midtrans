@@ -2,12 +2,12 @@ package com.integration.paymentmidtrans.adapter.inbound.usecase;
 
 import com.integration.paymentmidtrans.shared.annotation.Usecase;
 import com.integration.paymentmidtrans.shared.exception.BusinessException;
-import com.integration.paymentmidtrans.core.ports.outbound.CustomerGateway;
-import com.integration.paymentmidtrans.core.ports.outbound.EmailGateway;
-import com.integration.paymentmidtrans.core.ports.outbound.PaymentCallbackGateway;
-import com.integration.paymentmidtrans.core.ports.outbound.PaymentGateway;
-import com.integration.paymentmidtrans.core.dto.Customer;
-import com.integration.paymentmidtrans.core.dto.PaymentCallback;
+import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.CustomerJPAOutboundPort;
+import com.integration.paymentmidtrans.ports.outbound.email.EmailOutboundPort;
+import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.PaymentCallbackJPAOutboundPort;
+import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.PaymentJPAOutboundPort;
+import com.integration.paymentmidtrans.shared.dto.coreapis.Customer;
+import com.integration.paymentmidtrans.shared.dto.notifications.PaymentCallback;
 import com.integration.paymentmidtrans.adapter.inbound.delivery.notifications.request.VaTransferCallbackRequest;
 import com.integration.paymentmidtrans.shared.utility.JsonUtility;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CallbackNotificationUsecase {
 
-    private final PaymentCallbackGateway paymentCallbackGateway;
-    private final PaymentGateway paymentGateway;
-    private final EmailGateway emailGateway;
-    private final CustomerGateway customerGateway;
+    private final PaymentCallbackJPAOutboundPort paymentCallbackJPAOutboundPort;
+    private final PaymentJPAOutboundPort paymentJPAOutboundPort;
+    private final EmailOutboundPort emailOutboundPort;
+    private final CustomerJPAOutboundPort customerJPAOutboundPort;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = BusinessException.class)
     public void handleCallbackNotify(VaTransferCallbackRequest request) {
@@ -37,20 +37,20 @@ public class CallbackNotificationUsecase {
                 .build();
             log.info("Constructed payment callback: {}", JsonUtility.toJson(constructPaymentCallback));
 
-            paymentCallbackGateway.writeCallbackOnDB(constructPaymentCallback);
+            paymentCallbackJPAOutboundPort.writeCallbackOnDB(constructPaymentCallback);
             log.info("Payment callback successfully write to db");
 
             if ("settlement".equalsIgnoreCase(request.getTransactionStatus())) {
-                paymentGateway.updatePayment(
+                paymentJPAOutboundPort.updatePayment(
                     request.getTransactionStatus(),
                     request.getOrderId(),
                     request.getTransactionId());
 
-                Long customerId = paymentGateway.findCustomerIdByOrderIdAndTransactionId(request.getOrderId(), request.getTransactionId());
-                Customer customer = customerGateway.getCustomerById(customerId);
+                Long customerId = paymentJPAOutboundPort.findCustomerIdByOrderIdAndTransactionId(request.getOrderId(), request.getTransactionId());
+                Customer customer = customerJPAOutboundPort.getCustomerById(customerId);
 
                 // When Success payment status send email
-                emailGateway.publishEmailStatusNotification(
+                emailOutboundPort.publishEmailStatusNotification(
                     customer.getEmail(),
                     customer.getName(),
                     request.getOrderId(),

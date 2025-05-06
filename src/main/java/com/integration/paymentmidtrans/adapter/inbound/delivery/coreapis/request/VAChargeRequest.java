@@ -1,5 +1,6 @@
 package com.integration.paymentmidtrans.adapter.inbound.delivery.coreapis.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VAChargeRequest {
-
   private String paymentType; // ex: "bank_transfer" or "echannel"
   private TransactionDetails transactionDetails;
   private CustomerDetails customerDetails;
@@ -58,7 +58,7 @@ public class VAChargeRequest {
   @AllArgsConstructor
   public static class BankTransfer {
     private String bank; // permata, bca, bni
-    private String vaNumber; // khusus bca, bni
+    private String vaNumber; // just for bca, bni -> optional
     private PermataBank permata;
     private BcaBank bca;
     private Map<String, List<FreeText>> freeText; // free text untuk inquiry/payment

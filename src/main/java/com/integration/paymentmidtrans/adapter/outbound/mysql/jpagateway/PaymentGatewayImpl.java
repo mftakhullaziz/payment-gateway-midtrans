@@ -2,9 +2,9 @@ package com.integration.paymentmidtrans.adapter.outbound.mysql.jpagateway;
 
 import com.integration.paymentmidtrans.shared.annotation.Gateway;
 import com.integration.paymentmidtrans.adapter.outbound.mysql.entity.PaymentEntity;
-import com.integration.paymentmidtrans.core.ports.outbound.repository.PaymentRepo;
-import com.integration.paymentmidtrans.core.ports.outbound.PaymentGateway;
-import com.integration.paymentmidtrans.core.dto.Payment;
+import com.integration.paymentmidtrans.ports.outbound.mysql.repository.PaymentRepositoryPort;
+import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.PaymentJPAOutboundPort;
+import com.integration.paymentmidtrans.shared.dto.coreapis.Payment;
 import com.integration.paymentmidtrans.adapter.inbound.delivery.coreapis.request.CreatePaymentRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -12,9 +12,9 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @Gateway
 @RequiredArgsConstructor
-public class PaymentGatewayImpl implements PaymentGateway {
+public class PaymentGatewayImpl implements PaymentJPAOutboundPort {
 
-    private final PaymentRepo paymentRepo;
+    private final PaymentRepositoryPort paymentRepositoryPort;
 
     @Override
     public Payment savePaymentTransaction(CreatePaymentRequest request) {
@@ -37,13 +37,13 @@ public class PaymentGatewayImpl implements PaymentGateway {
             .totalPrice(request.getTotalPrice())
             .build();
 
-        PaymentEntity paymentEntity = paymentRepo.saveAndFlush(constructPaymentEntity);
+        PaymentEntity paymentEntity = paymentRepositoryPort.saveAndFlush(constructPaymentEntity);
         return constructPayment(paymentEntity);
     }
 
     @Override
     public Payment findByOrderId(String orderId) {
-        return paymentRepo.findByOrderId(orderId)
+        return paymentRepositoryPort.findByOrderId(orderId)
             .map(PaymentGatewayImpl::constructPayment)
             .orElse(null);
     }
@@ -52,16 +52,16 @@ public class PaymentGatewayImpl implements PaymentGateway {
     public void updatePayment(String transactionStatus,
                               String orderId,
                               String transactionId) {
-        paymentRepo.findByOrderIdAndTransactionId(orderId, transactionId)
+        paymentRepositoryPort.findByOrderIdAndTransactionId(orderId, transactionId)
             .ifPresent(payment -> {
                 payment.setTransactionStatus(transactionStatus);
-                paymentRepo.save(payment);
+                paymentRepositoryPort.save(payment);
             });
     }
 
     @Override
     public Long findCustomerIdByOrderIdAndTransactionId(String orderId, String transactionId) {
-        return paymentRepo.findByOrderIdAndTransactionId(orderId, transactionId)
+        return paymentRepositoryPort.findByOrderIdAndTransactionId(orderId, transactionId)
             .map(PaymentEntity::getCustomerId)
             .orElse(null);
     }

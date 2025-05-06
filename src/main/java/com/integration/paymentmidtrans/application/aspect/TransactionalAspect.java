@@ -17,15 +17,15 @@ public class TransactionalAspect {
   public void transactionalMethods(Transactional transactional) {}
 
   @Before(value = "transactionalMethods(transactional)", argNames = "joinPoint,transactional")
-  public void beforeTransaction(JoinPoint joinPoint, Transactional transactional) {
+  public void transactionalExecutor(JoinPoint joinPoint, Transactional transactional) {
     String transactionName = buildTransactionName(joinPoint);
 
-    // Register transaction synchronization for lifecycle logging
     if (TransactionSynchronizationManager.isActualTransactionActive()) {
       TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+
         @Override
         public void beforeCommit(boolean readOnly) {
-          log.info("Committing transaction: {}", transactionName);
+          log.info("[transactionalExecutor] Committing transaction: {}", transactionName);
         }
 
         @Override
@@ -36,12 +36,14 @@ public class TransactionalAspect {
             case STATUS_UNKNOWN -> "UNKNOWN";
             default -> "OTHER";
           };
-          log.info("Transaction '{}' completed with status: {}", transactionName, statusText);
+
+          log.info("[transactionalExecutor] Transaction '{}' completed with status: {}", transactionName, statusText);
+          log.info("[transactionalExecutor] Finished transaction: {}", transactionName); // <- Final transaction finish log
         }
       });
     }
 
-    log.info("Started transaction: {}", transactionName);
+    log.info("[transactionalExecutor] Started transaction: {}", transactionName);
   }
 
   private String buildTransactionName(JoinPoint joinPoint) {
