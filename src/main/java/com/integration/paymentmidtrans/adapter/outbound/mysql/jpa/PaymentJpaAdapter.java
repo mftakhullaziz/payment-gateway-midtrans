@@ -1,4 +1,4 @@
-package com.integration.paymentmidtrans.adapter.outbound.mysql.jpagateway;
+package com.integration.paymentmidtrans.adapter.outbound.mysql.jpa;
 
 import com.integration.paymentmidtrans.shared.annotation.Gateway;
 import com.integration.paymentmidtrans.adapter.outbound.mysql.entity.PaymentEntity;
@@ -12,7 +12,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @Gateway
 @RequiredArgsConstructor
-public class PaymentGatewayImpl implements PaymentJPAOutboundPort {
+public class PaymentJpaAdapter implements PaymentJPAOutboundPort {
 
     private final PaymentRepositoryPort paymentRepositoryPort;
 
@@ -44,7 +44,7 @@ public class PaymentGatewayImpl implements PaymentJPAOutboundPort {
     @Override
     public Payment findByOrderId(String orderId) {
         return paymentRepositoryPort.findByOrderId(orderId)
-            .map(PaymentGatewayImpl::constructPayment)
+            .map(PaymentJpaAdapter::constructPayment)
             .orElse(null);
     }
 

@@ -1,5 +1,6 @@
 package com.integration.paymentmidtrans.adapter.inbound.usecase;
 
+import com.integration.paymentmidtrans.adapter.inbound.usecase.mapper.VaTransferUsecaseTransformer;
 import com.integration.paymentmidtrans.shared.annotation.Usecase;
 import com.integration.paymentmidtrans.shared.exception.BusinessException;
 import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.CustomerJPAOutboundPort;
@@ -66,7 +67,7 @@ public class VaTransferUsecase {
             emailOutboundPort.publishEmailRemainderNotification(
                 paymentRequest.getCustomerInfo().getEmail(),
                 paymentRequest.getCustomerInfo().getFirstname() + " " + paymentRequest.getCustomerInfo().getLastname(),
-                midtransResponse.getVaNumbers().getFirst().getVa_number(),
+                midtransResponse.getVaNumbers().getFirst().getVaNumber(),
                 midtransResponse.getVaNumbers().getFirst().getBank(),
                 midtransResponse.getExpiryTime(),
                 midtransResponse.getTransactionStatus().toUpperCase());
@@ -87,7 +88,6 @@ public class VaTransferUsecase {
     {
         return switch (paymentTypes) {
             case BANK_TRANSFER -> midtransCoreAPIOutboundPort.executePayMidtransBankTransfer(vaTransferDTO);
-            case CREDIT_CARD -> midtransCoreAPIOutboundPort.executePayMidtransCreditCard(vaTransferDTO);
             default -> throw new BusinessException("enum not found", HttpStatus.UNPROCESSABLE_ENTITY.value());
         };
     }
@@ -108,7 +108,7 @@ public class VaTransferUsecase {
             .fraudStatus(midtransResponse.getFraudStatus())
             .paymentType(midtransResponse.getPaymentType())
             .paymentMethod(midtransResponse.getVaNumbers().getFirst().getBank())
-            .paymentVaNumbers(midtransResponse.getVaNumbers().getFirst().getVa_number())
+            .paymentVaNumbers(midtransResponse.getVaNumbers().getFirst().getVaNumber())
             .totalPrice(paymentRequest.getTotalPrice())
             .totalTax(paymentRequest.getTotalTax())
             .totalDiscount(paymentRequest.getTotalDiscount())

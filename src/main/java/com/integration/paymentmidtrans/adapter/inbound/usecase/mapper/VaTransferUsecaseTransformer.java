@@ -1,4 +1,4 @@
-package com.integration.paymentmidtrans.adapter.inbound.usecase;
+package com.integration.paymentmidtrans.adapter.inbound.usecase.mapper;
 
 import com.integration.paymentmidtrans.shared.dto.coreapis.VaTransferDTO;
 import com.integration.paymentmidtrans.adapter.inbound.delivery.coreapis.request.PaymentRequest;

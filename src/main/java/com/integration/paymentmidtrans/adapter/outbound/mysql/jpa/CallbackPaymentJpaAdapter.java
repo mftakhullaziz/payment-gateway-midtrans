@@ -1,4 +1,4 @@
-package com.integration.paymentmidtrans.adapter.outbound.mysql.jpagateway;
+package com.integration.paymentmidtrans.adapter.outbound.mysql.jpa;
 
 import com.integration.paymentmidtrans.shared.annotation.Gateway;
 import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.PaymentCallbackJPAOutboundPort;
@@ -13,7 +13,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @Gateway
 @RequiredArgsConstructor
-public class PaymentCallbackGatewayImpl implements PaymentCallbackJPAOutboundPort {
+public class CallbackPaymentJpaAdapter implements PaymentCallbackJPAOutboundPort {
 
     private final CallbackPaymentRepositoryPort callbackPaymentRepositoryPort;
 

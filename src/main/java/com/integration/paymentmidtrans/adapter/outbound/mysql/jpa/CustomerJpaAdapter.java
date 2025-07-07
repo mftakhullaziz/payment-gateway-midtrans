@@ -1,4 +1,4 @@
-package com.integration.paymentmidtrans.adapter.outbound.mysql.jpagateway;
+package com.integration.paymentmidtrans.adapter.outbound.mysql.jpa;
 
 import com.integration.paymentmidtrans.shared.annotation.Gateway;
 import com.integration.paymentmidtrans.ports.outbound.mysql.jpa.CustomerJPAOutboundPort;
@@ -10,7 +10,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @Gateway
 @RequiredArgsConstructor
-public class CustomerGatewayImpl implements CustomerJPAOutboundPort {
+public class CustomerJpaAdapter implements CustomerJPAOutboundPort {
 
     private final CustomerRepositoryPort customerRepo;
 
@@ -32,12 +32,12 @@ public class CustomerGatewayImpl implements CustomerJPAOutboundPort {
 
     @Override
     public Customer getCustomerById(Long customerId) {
-        return customerRepo.findById(customerId)
+        return customerRepo.findFirstById(customerId)
             .map(v -> Customer.builder()
                 .id(v.getId())
+                .name(v.getName())
                 .email(v.getEmail())
                 .phone(v.getPhone())
-                .name(v.getName())
                 .build())
             .orElse(null);
     }

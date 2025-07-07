@@ -61,6 +61,6 @@ public class PaymentMidtransResponse {
         private String bank;
 
         @JsonProperty(value = "va_number")
-        private String va_number;
+        private String vaNumber;
     }
 }

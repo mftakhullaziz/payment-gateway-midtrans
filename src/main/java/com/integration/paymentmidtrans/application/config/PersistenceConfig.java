@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.application.paymentmidtranssrv.infrastructure.mysql.repository")
-@EntityScan(basePackages = "com.application.paymentmidtranssrv.infra.mysql.entity")
+@EnableJpaRepositories(basePackages = "com.integration.paymentmidtrans.ports.outbound.mysql.repository")
+@EntityScan(basePackages = "com.integration.paymentmidtrans.adapter.outbound.mysql.entity")
 public class PersistenceConfig {
 }

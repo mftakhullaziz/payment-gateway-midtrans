@@ -9,11 +9,11 @@ import org.springframework.http.ResponseEntity;
 @Getter
 public class APICorePaymentPresenter implements iCoreAPIPaymentPresenter {
 
-  private ResponseEntity<Response<VAChargeResponse>> viewVAChargeResponse;
+  private ResponseEntity<Response<VAChargeResponse>> presentVAChargeResponse;
 
   @Override
   public void vaPaymentResponse(VAChargeResponse vaChargeResponse) {
-    this.viewVAChargeResponse = Response.create(vaChargeResponse);
+    this.presentVAChargeResponse = Response.create(vaChargeResponse);
   }
 
 }

@@ -123,17 +123,17 @@ public class MidtransCoreAPIOutboundAdapter implements MidtransCoreAPIOutboundPo
     }
 
 
-    private JSONObject buildRequestVATransfer(VAChargeRequest vaTransferRequest) {
-        BankType bankType = BankType.valueOf(vaTransferRequest.getBankTransfer().getBank());
-        return switch (bankType) {
-            case BCA -> constructBCATransferRequest(vaTransferRequest);
-            case PERMATA -> VATransferMapper.createPermataBankTransferRequest();
-            case BNI -> VATransferMapper.createBNIBankTransferRequest();
-            case BRI -> VATransferMapper.createBRIBankTransferRequest();
-            case MANDIRI -> VATransferMapper.createMandiriEChannelTransferRequest();
-            case CIMB -> VATransferMapper.createCIMBBankTransferRequest();
-        };
-    }
+//    private JSONObject buildRequestVATransfer(VAChargeRequest vaTransferRequest) {
+//        BankType bankType = BankType.valueOf(vaTransferRequest.getBankTransfer().getBank());
+//        return switch (bankType) {
+//            case BCA -> constructBCATransferRequest(vaTransferRequest);
+//            case PERMATA -> VATransferMapper.createPermataBankTransferRequest();
+//            case BNI -> VATransferMapper.createBNIBankTransferRequest();
+//            case BRI -> VATransferMapper.createBRIBankTransferRequest();
+//            case MANDIRI -> VATransferMapper.createMandiriEChannelTransferRequest();
+//            case CIMB -> VATransferMapper.createCIMBBankTransferRequest();
+//        };
+//    }
 
     private VAChargeRequest constructBCATransferRequest(VAChargeRequest vaTransferRequest) {
         return VATransferMapper.createBcaBankTransferRequest(
