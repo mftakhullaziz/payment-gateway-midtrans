@@ -33,4 +33,4 @@ build/
 ### VS Code ###
 .vscode/
 
-secret.sh
+init-credentials.sh
