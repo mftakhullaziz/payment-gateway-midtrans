@@ -1,0 +1,175 @@
+package com.integration.adapter.outbound.midtrans;
+
+import com.integration.adapter.inbound.delivery.coreapis.request.VAChargeRequest;
+import com.app.midtrans.shared.restclient.RestClientInvoker;
+import com.integration.adapter.outbound.mapper.VATransferMapper;
+import com.app.midtrans.shared.annotation.Gateway;
+import com.integration.adapter.property.PaymentProperty;
+import com.integration.adapter.ports.outbound.midtrans.MidtransCoreAPIOutboundPort;
+import com.integration.adapter.outbound.mapper.MidtransGatewayTransformer;
+import com.app.midtrans.shared.enums.BankType;
+import com.app.midtrans.shared.dto.coreapis.VaTransferDTO;
+import com.integration.adapter.inbound.delivery.coreapis.response.PaymentMidtransResponse;
+import com.app.midtrans.shared.utils.Base64Utils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
+import org.json.JSONObject;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClient;
+
+@Log4j2
+@Gateway
+@RequiredArgsConstructor
+public class MidtransCoreAPIOutboundAdapter implements MidtransCoreAPIOutboundPort {
+
+    private final PaymentProperty paymentProperty;
+
+    @SneakyThrows
+    @Override
+    public PaymentMidtransResponse executePayMidtransBankTransfer(VaTransferDTO vaTransferDTO) {
+//        PaymentTypes paymentTypes = paymentMidtransDto.getPaymentTypes();
+//        return switch (paymentTypes) {
+//            case BANK_TRANSFER -> executeInvokeMidtrans(buildRequestBodyBankTransfer(paymentMidtransDto));
+//            case CREDIT_CARD -> executeInvokeMidtrans(buildRequestBodyCreditCard(paymentMidtransDto));
+//            default -> throw new RuntimeException("not found");
+//        };
+        return executeInvokeMidtrans(buildRequestBodyBankTransfer(vaTransferDTO));
+    }
+
+    @Override
+    public PaymentMidtransResponse executePayMidtransQRISAndEWallet(VaTransferDTO vaTransferDTO) {
+        return null;
+    }
+
+    @Override
+    public PaymentMidtransResponse executePayMidtransCreditCard(VaTransferDTO vaTransferDTO) {
+        return null;
+    }
+
+    @Override
+    public PaymentMidtransResponse executePayMidtransCSStore(VaTransferDTO vaTransferDTO) {
+        return null;
+    }
+
+    @Override
+    public PaymentMidtransResponse executePayMidtransCardlessCredit(VaTransferDTO vaTransferDTO) {
+        return null;
+    }
+
+    private Object buildRequestBodyCreditCard(VaTransferDTO vaTransferDTO) {
+        return null;
+    }
+
+    private PaymentMidtransResponse executeInvokeMidtrans(Object requestBody) throws JsonProcessingException {
+        log.info("Request Body: {}", new ObjectMapper().writerWithDefaultPrettyPrinter()
+            .writeValueAsString(requestBody));
+
+        String serverKeyEncode = Base64Utils.encodeToBase64(paymentProperty.getMidtrans().getServerKey());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + serverKeyEncode);
+
+        RestClient restClient = RestClient.create();
+        ResponseEntity<Object> responseEntity = restClient.post()
+            .uri(paymentProperty.getMidtrans().getPaymentUri())
+            .contentType(MediaType.APPLICATION_JSON)
+            .headers(httpHeaders -> httpHeaders.addAll(headers))
+            .body(requestBody)
+            .retrieve()
+            .toEntity(Object.class);
+
+        log.info("Raw Response: {}", new ObjectMapper().writerWithDefaultPrettyPrinter()
+            .writeValueAsString(responseEntity));
+
+        PaymentMidtransResponse finalResponse = constructToPaymentMidtransResponse(responseEntity.getBody());
+        log.info("Final Response: {}", new ObjectMapper().writerWithDefaultPrettyPrinter()
+            .writeValueAsString(finalResponse));
+
+        if (!finalResponse.getStatusCode().equals(201))
+            log.info("Error Create Transaction :: Status Code: {}", finalResponse.getStatusCode());
+
+        return finalResponse;
+    }
+
+    private PaymentMidtransResponse constructToPaymentMidtransResponse(Object resBody) throws JsonProcessingException {
+        // Use ObjectMapper to work with the JSON response using JsonNode
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // Convert the response body to a JSON string
+        String responseBody = objectMapper.writeValueAsString(resBody);
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+        // If needed, you can map the JsonNode to your class
+        return objectMapper.treeToValue(jsonNode, PaymentMidtransResponse.class);
+    }
+
+    private Object buildRequestBodyBankTransfer(VaTransferDTO requestBody) {
+        BankType bankType = requestBody.getBankType();
+        return switch (bankType) {
+            case BCA -> MidtransGatewayTransformer.transformToBCAVABody(requestBody);
+            case BRI -> buildRequestBodyVaBri(requestBody);
+            default -> throw new RuntimeException("payment type not found");
+        };
+    }
+
+    private Object buildRequestBodyVaBri(Object requestBody) {
+        return null;
+    }
+
+
+//    private JSONObject buildRequestVATransfer(VAChargeRequest vaTransferRequest) {
+//        BankType bankType = BankType.valueOf(vaTransferRequest.getBankTransfer().getBank());
+//        return switch (bankType) {
+//            case BCA -> constructBCATransferRequest(vaTransferRequest);
+//            case PERMATA -> VATransferMapper.createPermataBankTransferRequest();
+//            case BNI -> VATransferMapper.createBNIBankTransferRequest();
+//            case BRI -> VATransferMapper.createBRIBankTransferRequest();
+//            case MANDIRI -> VATransferMapper.createMandiriEChannelTransferRequest();
+//            case CIMB -> VATransferMapper.createCIMBBankTransferRequest();
+//        };
+//    }
+
+    private VAChargeRequest constructBCATransferRequest(VAChargeRequest vaTransferRequest) {
+        return VATransferMapper.createBcaBankTransferRequest(
+            vaTransferRequest.getTransactionDetails().getOrderId(),
+            vaTransferRequest.getTransactionDetails().getGrossAmount(),
+            vaTransferRequest.getBankTransfer().getBank(),
+            null,
+            vaTransferRequest.getBankTransfer().getBca().getSubCompanyCode(),
+            vaTransferRequest.getCustomerDetails(),
+            vaTransferRequest.getItemDetails());
+    }
+
+//    private VAChargeRequest constructBRITransferRequest(VAChargeRequest vaTransferRequest) {
+//        return VATransferMapper.createBRIBankTransferRequest(
+//
+//        );
+//    }
+
+    private PaymentMidtransResponse vaTransferExecutor(JSONObject jsonObjectRequest)
+        throws JsonProcessingException
+    {
+        String serverKeyEncode = Base64Utils.encodeToBase64(paymentProperty.getMidtrans().getServerKey());
+        PaymentMidtransResponse response = RestClientInvoker.post(
+            paymentProperty.getMidtrans().getPaymentUri(),
+            jsonObjectRequest,
+            null,
+            PaymentMidtransResponse.class,
+            serverKeyEncode);
+
+        log.info("2Final Response: {}",
+            new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
+
+        if (!response.getStatusCode().equals(201)) {
+            log.info("2Error Create Transaction :: Status Code: {}", response.getStatusCode());
+        }
+
+        return response;
+    }
+}
