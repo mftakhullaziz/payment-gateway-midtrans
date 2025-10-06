@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,24 +18,29 @@ import java.util.Map;
 public class RestClientInvoker {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final RestClient restClient = RestClient.create();
 
-    public static  <T> T post(String uri,
-                      Object requestBody,
-                      Map<String, String> additionalHeaders,
-                      Class<T> responseType,
-                      String basicAuthToken) throws JsonProcessingException {
-        log.info("[restClientPost] Request body: {}",
-            OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(requestBody));
+    @SneakyThrows
+    public static <T> T post(
+        String uri,
+        Object requestBody,
+        Map<String, String> additionalHeaders,
+        Class<T> responseType,
+        String basicAuthToken
+    ) {
+        log.info("[restClientPost] Request body: {}");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Basic " + basicAuthToken);
 
-        if (additionalHeaders != null && !additionalHeaders.isEmpty()) {
+        if (additionalHeaders != null &&
+            !additionalHeaders.isEmpty())
+        {
             additionalHeaders.forEach(headers::add);
         }
 
-        ResponseEntity<T> responseEntity = RestClient.create()
+        ResponseEntity<T> responseEntity = restClient
             .post()
             .uri(uri)
             .contentType(MediaType.APPLICATION_JSON)
@@ -48,4 +54,5 @@ public class RestClientInvoker {
 
         return responseEntity.getBody();
     }
+
 }
