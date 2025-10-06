@@ -1,4 +1,4 @@
-package com.app.midtrans.domain.payment;
+package com.app.midtrans.infrastructure.adapter.outbound.persistence.payment;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "payments")
-public class PaymentPersistence {
+public class PaymentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

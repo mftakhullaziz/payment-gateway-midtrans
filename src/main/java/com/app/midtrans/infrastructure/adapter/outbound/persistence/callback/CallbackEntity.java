@@ -1,6 +1,9 @@
-package com.app.midtrans.domain.customer;
+package com.app.midtrans.infrastructure.adapter.outbound.persistence.callback;
 
+import com.app.midtrans.shared.utils.JsonUtils;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -18,32 +23,29 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "customers")
-public class CustomerPersistence {
+@Table(name = "payment_callbacks")
+public class CallbackEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 255)
-    private String email;
+    @Column(name = "transaction_id")
+    private String transactionId;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+    @Column(name = "order_id")
+    private String orderId;
 
-    @Column(length = 20)
-    private String phone;
+    @Column(name = "data_callbacks", columnDefinition = "json")
+    @Convert(converter = JsonUtils.class)
+    private JsonNode dataCallbacks;
 
-    @Column(nullable = false)
-    private String role; // CUSTOMER, MERCHANT, VENDOR
-
-    @Column(nullable = false)
-    private String status; // ACTIVE, INACTIVE, SUSPENDED
-
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

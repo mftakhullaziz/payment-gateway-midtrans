@@ -1,4 +1,4 @@
-package com.app.midtrans.domain.bankAccount;
+package com.app.midtrans.infrastructure.adapter.outbound.persistence.bankAccount;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "bank_accounts")
-public class BankAccountPersistence {
+public class BankAccountEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
