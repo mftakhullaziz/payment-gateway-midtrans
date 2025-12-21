@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VirtualAccountResponse {
+public class VaTransferResponse {
     private Long customerId;
     private String email;
     private String orderId;

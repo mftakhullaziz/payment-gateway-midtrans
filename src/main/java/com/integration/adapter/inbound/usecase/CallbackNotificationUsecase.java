@@ -8,7 +8,7 @@ import com.integration.adapter.ports.outbound.mysql.jpa.PaymentCallbackJPAOutbou
 import com.integration.adapter.ports.outbound.mysql.jpa.PaymentJPAOutboundPort;
 import com.app.midtrans.shared.dto.coreapis.Customer;
 import com.app.midtrans.shared.dto.notifications.PaymentCallback;
-import com.integration.adapter.inbound.delivery.notifications.request.VaTransferCallbackRequest;
+import com.app.midtrans.infra.adapter.inbound.request.VaTransferNotifyRequest;
 import com.app.midtrans.shared.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -27,7 +27,7 @@ public class CallbackNotificationUsecase {
     private final CustomerJPAOutboundPort customerJPAOutboundPort;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = BusinessException.class)
-    public void handleCallbackNotify(VaTransferCallbackRequest request) {
+    public void handleCallbackNotify(VaTransferNotifyRequest request) {
         try {
             log.info("Received transaction status: {}", request.getTransactionStatus());
             PaymentCallback constructPaymentCallback = PaymentCallback.builder()

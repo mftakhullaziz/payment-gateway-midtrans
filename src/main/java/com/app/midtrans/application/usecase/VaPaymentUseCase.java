@@ -12,8 +12,8 @@ import com.app.midtrans.domain.payment.Payment;
 import com.app.midtrans.domain.payment.PaymentGatewayPort;
 import com.app.midtrans.domain.payment.PaymentPersistencePort;
 import com.app.midtrans.domain.payment.PaymentService;
-import com.app.midtrans.infra.adapter.inbound.request.VirtualAccountRequest;
-import com.app.midtrans.infra.adapter.inbound.response.VirtualAccountResponse;
+import com.app.midtrans.infra.adapter.inbound.request.VaTransferRequest;
+import com.app.midtrans.infra.adapter.inbound.response.VaTransferResponse;
 import com.app.midtrans.shared.enums.VaChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -27,8 +27,8 @@ import java.time.format.DateTimeFormatter;
 @Log4j2
 @Component
 @RequiredArgsConstructor
-public class VirtualAccountUseCase
-    extends UseCaseExecutor<VirtualAccountRequest, VirtualAccountResponse> {
+public class VaPaymentUseCase
+    extends UseCaseExecutor<VaTransferRequest, VaTransferResponse> {
 
     private final BankPersistencePort bankPersistencePort;
     private final BankService bankService;
@@ -44,7 +44,7 @@ public class VirtualAccountUseCase
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @Override
-    public void execute(VirtualAccountRequest input, VirtualAccountResponse output) {
+    public void execute(VaTransferRequest input, VaTransferResponse output) {
         // Check customer must be eligible to create VA
         Customer customer = customerPersistencePort.getCustomerById(input.getCustomerId());
         customerService.ensureEligibleForPayment(customer);
@@ -77,7 +77,7 @@ public class VirtualAccountUseCase
     }
 
     private Payment toPaymentRequest(
-        VirtualAccountRequest input,
+        VaTransferRequest input,
         Bank bank,
         VaChannel vaChannel
     ) {
@@ -92,7 +92,7 @@ public class VirtualAccountUseCase
 
     private void buildResponse(
         Customer customer,
-        VirtualAccountResponse output,
+        VaTransferResponse output,
         Payment payment,
         VaChannel vaChannel
     ) {

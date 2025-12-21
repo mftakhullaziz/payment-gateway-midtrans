@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VirtualAccountRequest {
+public class VaTransferRequest {
     private Long customerId;
     private String orderId;
     private BigDecimal totalAmount;

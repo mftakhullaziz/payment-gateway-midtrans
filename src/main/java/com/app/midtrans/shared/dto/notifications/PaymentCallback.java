@@ -1,6 +1,6 @@
 package com.app.midtrans.shared.dto.notifications;
 
-import com.integration.adapter.inbound.delivery.notifications.request.VaTransferCallbackRequest;
+import com.app.midtrans.infra.adapter.inbound.request.VaTransferNotifyRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 public class PaymentCallback {
     private String transactionId;
     private String orderId;
-    private VaTransferCallbackRequest callbacks;
+    private VaTransferNotifyRequest callbacks;
 }

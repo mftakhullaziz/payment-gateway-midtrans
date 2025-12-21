@@ -1,4 +1,4 @@
-package com.integration.adapter.inbound.delivery.notifications.request;
+package com.app.midtrans.infra.adapter.inbound.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class VaTransferCallbackRequest {
+public class VaTransferNotifyRequest {
     // Shared
     @JsonProperty("transaction_time")
     private String transactionTime;
