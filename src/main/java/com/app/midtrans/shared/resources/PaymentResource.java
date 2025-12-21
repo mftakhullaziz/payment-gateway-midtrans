@@ -1,4 +1,4 @@
-package com.integration.adapter.property;
+package com.app.midtrans.shared.resources;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(value = "application.external-service.payment-gateway")
-public class PaymentProperty {
+public class PaymentResource {
 
     private Midtrans midtrans;
 

@@ -1,10 +1,9 @@
 package com.integration.adapter.outbound.midtrans;
 
 import com.integration.adapter.inbound.delivery.coreapis.request.VAChargeRequest;
-import com.app.midtrans.shared.restclient.RestClientInvoker;
 import com.integration.adapter.outbound.mapper.VATransferMapper;
 import com.app.midtrans.shared.annotation.Gateway;
-import com.integration.adapter.property.PaymentProperty;
+import com.app.midtrans.shared.resources.PaymentResource;
 import com.integration.adapter.ports.outbound.midtrans.MidtransCoreAPIOutboundPort;
 import com.integration.adapter.outbound.mapper.MidtransGatewayTransformer;
 import com.app.midtrans.shared.enums.BankType;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +26,7 @@ import org.springframework.web.client.RestClient;
 @RequiredArgsConstructor
 public class MidtransCoreAPIOutboundAdapter implements MidtransCoreAPIOutboundPort {
 
-    private final PaymentProperty paymentProperty;
+    private final PaymentResource paymentResource;
 
     @SneakyThrows
     @Override
@@ -70,14 +68,14 @@ public class MidtransCoreAPIOutboundAdapter implements MidtransCoreAPIOutboundPo
         log.info("Request Body: {}", new ObjectMapper().writerWithDefaultPrettyPrinter()
             .writeValueAsString(requestBody));
 
-        String serverKeyEncode = Base64Utils.encodeToBase64(paymentProperty.getMidtrans().getServerKey());
+        String serverKeyEncode = Base64Utils.encodeToBase64(paymentResource.getMidtrans().getServerKey());
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + serverKeyEncode);
 
         RestClient restClient = RestClient.create();
         ResponseEntity<Object> responseEntity = restClient.post()
-            .uri(paymentProperty.getMidtrans().getPaymentUri())
+            .uri(paymentResource.getMidtrans().getPaymentUri())
             .contentType(MediaType.APPLICATION_JSON)
             .headers(httpHeaders -> httpHeaders.addAll(headers))
             .body(requestBody)
@@ -152,24 +150,24 @@ public class MidtransCoreAPIOutboundAdapter implements MidtransCoreAPIOutboundPo
 //        );
 //    }
 
-    private PaymentMidtransResponse vaTransferExecutor(JSONObject jsonObjectRequest)
-        throws JsonProcessingException
-    {
-        String serverKeyEncode = Base64Utils.encodeToBase64(paymentProperty.getMidtrans().getServerKey());
-        PaymentMidtransResponse response = RestClientInvoker.post(
-            paymentProperty.getMidtrans().getPaymentUri(),
-            jsonObjectRequest,
-            null,
-            PaymentMidtransResponse.class,
-            serverKeyEncode);
-
-        log.info("2Final Response: {}",
-            new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
-
-        if (!response.getStatusCode().equals(201)) {
-            log.info("2Error Create Transaction :: Status Code: {}", response.getStatusCode());
-        }
-
-        return response;
-    }
+//    private PaymentMidtransResponse vaTransferExecutor(JSONObject jsonObjectRequest)
+//        throws JsonProcessingException
+//    {
+//        String serverKeyEncode = Base64Utils.encodeToBase64(paymentProperty.getMidtrans().getServerKey());
+//        PaymentMidtransResponse response = RestClientInvoker.post(
+//            paymentProperty.getMidtrans().getPaymentUri(),
+//            jsonObjectRequest,
+//            null,
+//            PaymentMidtransResponse.class,
+//            serverKeyEncode);
+//
+//        log.info("2Final Response: {}",
+//            new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
+//
+//        if (!response.getStatusCode().equals(201)) {
+//            log.info("2Error Create Transaction :: Status Code: {}", response.getStatusCode());
+//        }
+//
+//        return response;
+//    }
 }

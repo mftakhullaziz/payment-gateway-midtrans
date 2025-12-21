@@ -10,23 +10,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VirtualAccountResponse {
-
+    private Long customerId;
+    private String email;
     private String orderId;
     private String transactionId;
-    private String bankTransfer;
-    private String totalAmount;
-    private String currency;
+    private String status;
     private String paymentType;
-    private String transactionStatus;
-    private String transactionTime;
-    private VirtualAccount virtualAccount;
 
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class VirtualAccount {
-        private String bank;
-        private String vaNumber;
-    }
+    private String bank;
+    private String virtualAccountNumber;
+
+    private String expiredTime;
+    private String transactionTime;
 }

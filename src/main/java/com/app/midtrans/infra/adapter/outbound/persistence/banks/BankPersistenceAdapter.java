@@ -22,6 +22,7 @@ public class BankPersistenceAdapter implements BankPersistencePort {
         return Bank.builder()
             .id(entity.getId())
             .name(entity.getName())
+            .code(entity.getCode())
             .build();
     }
 

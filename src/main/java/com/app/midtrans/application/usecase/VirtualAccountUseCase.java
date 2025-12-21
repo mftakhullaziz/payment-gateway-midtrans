@@ -4,30 +4,31 @@ import com.app.midtrans.application.UseCaseExecutor;
 import com.app.midtrans.domain.bank.Bank;
 import com.app.midtrans.domain.bank.BankPersistencePort;
 import com.app.midtrans.domain.bank.BankService;
-import com.app.midtrans.domain.bankAccount.BankAccountPersistencePort;
-import com.app.midtrans.domain.bankAccount.BankAccountService;
 import com.app.midtrans.domain.customer.Customer;
 import com.app.midtrans.domain.customer.CustomerPersistencePort;
 import com.app.midtrans.domain.customer.CustomerService;
+import com.app.midtrans.domain.email.EmailGatewayPort;
+import com.app.midtrans.domain.payment.Payment;
 import com.app.midtrans.domain.payment.PaymentGatewayPort;
 import com.app.midtrans.domain.payment.PaymentPersistencePort;
 import com.app.midtrans.domain.payment.PaymentService;
 import com.app.midtrans.infra.adapter.inbound.request.VirtualAccountRequest;
 import com.app.midtrans.infra.adapter.inbound.response.VirtualAccountResponse;
+import com.app.midtrans.shared.enums.VaChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Log4j2
 @Component
 @RequiredArgsConstructor
 public class VirtualAccountUseCase
     extends UseCaseExecutor<VirtualAccountRequest, VirtualAccountResponse> {
-
-    private final BankAccountPersistencePort bankAccountPersistencePort;
-    private final BankAccountService bankAccountService;
 
     private final BankPersistencePort bankPersistencePort;
     private final BankService bankService;
@@ -39,6 +40,8 @@ public class VirtualAccountUseCase
     private final PaymentPersistencePort paymentPersistencePort;
     private final PaymentService paymentService;
 
+    private final EmailGatewayPort emailGatewayPort;
+
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @Override
     public void execute(VirtualAccountRequest input, VirtualAccountResponse output) {
@@ -46,12 +49,86 @@ public class VirtualAccountUseCase
         Customer customer = customerPersistencePort.getCustomerById(input.getCustomerId());
         customerService.ensureEligibleForPayment(customer);
 
-        // If the customer is eligible, check bank account support create va
-        String bankName = bankService.getBankName(input.getBankTransfer());
-        Bank bank = bankPersistencePort.getBankByName(bankName);
+        // 2. Resolve VA Channel
+        VaChannel vaChannel = VaChannel.from(input.getBankTransfer());
+
+        // 3. Validate bank eligibility
+        Bank bank = bankPersistencePort.getBankByName(vaChannel.getBankName());
         bankService.bankMustBeEligible(bank);
 
         // if a bank still eligible, now create va payment to midtrans
+        Payment paymentRequest = toPaymentRequest(input, bank, vaChannel);
+        Payment payment = paymentGatewayPort.createPaymentMidtrans(paymentRequest);
+        paymentService.validateForSave(payment);
+        paymentPersistencePort.savePayment(payment);
+
+        // Send email notification to a customer
+        emailGatewayPort.sendReminderEmail(
+            customer.getEmail(),
+            customer.getName(),
+            payment.getVaNumber(),
+            vaChannel.getBankName(),
+            payment.getExpiredTime(),
+            payment.getTransactionStatus()
+        );
+
+        // Construct to virtual account response
+        buildResponse(customer, output, payment, vaChannel);
+    }
+
+    private Payment toPaymentRequest(
+        VirtualAccountRequest input,
+        Bank bank,
+        VaChannel vaChannel
+    ) {
+        return Payment.builder()
+            .customerId(input.getCustomerId())
+            .orderId(input.getOrderId())
+            .totalAmount(input.getTotalAmount())
+            .bankTransfer(bank.getName())
+            .vaChannel(vaChannel)
+            .build();
+    }
+
+    private void buildResponse(
+        Customer customer,
+        VirtualAccountResponse output,
+        Payment payment,
+        VaChannel vaChannel
+    ) {
+        output.setCustomerId(payment.getCustomerId());
+        output.setEmail(customer.getEmail());
+
+        output.setOrderId(payment.getOrderId());
+        output.setTransactionId(payment.getTransactionId());
+        output.setStatus(payment.getTransactionStatus());
+        output.setPaymentType(payment.getPaymentType());
+
+        output.setBank(vaChannel.getBankName());
+        output.setVirtualAccountNumber(resolveVaNumber(payment));
+
+        output.setTransactionTime(formatTime(payment.getTransactionTime()));
+        output.setExpiredTime(formatTime(payment.getExpiredTime()));
+    }
+
+    private String resolveVaNumber(Payment payment) {
+        if (payment.isMandiri()) {
+            return payment.getBillKey();
+        }
+        return payment.getVaNumber();
+    }
+
+    private String formatTime(String time) {
+        if (time == null || time.isBlank()) return null;
+
+        DateTimeFormatter inputFormatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        LocalDateTime parsed = LocalDateTime.parse(time, inputFormatter);
+
+        return parsed.format(
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        );
     }
 
 }

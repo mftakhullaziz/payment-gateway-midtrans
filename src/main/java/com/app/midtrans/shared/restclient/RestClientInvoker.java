@@ -1,58 +1,85 @@
 package com.app.midtrans.shared.restclient;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.app.midtrans.shared.exception.ExternalApiException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.Map;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Log4j2
+@Component
+@RequiredArgsConstructor
 public class RestClientInvoker {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final RestClient restClient = RestClient.create();
+    private final ObjectMapper objectMapper;
+    private final RestClient restClient;
 
-    @SneakyThrows
-    public static <T> T post(
+    public <I, O> O post(
         String uri,
-        Object requestBody,
-        Map<String, String> additionalHeaders,
-        Class<T> responseType,
-        String basicAuthToken
+        I request,
+        Map<String, String> headers,
+        Class<O> responseType
     ) {
-        log.info("[restClientPost] Request body: {}");
+        try {
+            logRequest(uri, request);
+            HttpHeaders httpHeaders = buildHeaders(headers);
+            O response = restClient
+                .post()
+                .uri(uri)
+                .headers(h -> h.addAll(httpHeaders))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .body(responseType);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Basic " + basicAuthToken);
-
-        if (additionalHeaders != null &&
-            !additionalHeaders.isEmpty())
-        {
-            additionalHeaders.forEach(headers::add);
+            logResponse(response);
+            return response;
+        } catch (RestClientResponseException ex) {
+            log.error(
+                "[RestClientInvoker][ERROR] status={} response={}",
+                ex.getStatusCode(),
+                ex.getResponseBodyAsString()
+            );
+            throw new ExternalApiException("External API error", ex);
         }
-
-        ResponseEntity<T> responseEntity = restClient
-            .post()
-            .uri(uri)
-            .contentType(MediaType.APPLICATION_JSON)
-            .headers(httpHeaders -> httpHeaders.addAll(headers))
-            .body(requestBody)
-            .retrieve()
-            .toEntity(responseType);
-
-        log.info("[restClientPost] Raw response: {}",
-            OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(responseEntity));
-
-        return responseEntity.getBody();
     }
 
+    /* ================= PRIVATE ================= */
+
+    private HttpHeaders buildHeaders(Map<String, String> headers) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        if (headers != null) {
+            headers.forEach(httpHeaders::add);
+        }
+        return httpHeaders;
+    }
+
+    private void logRequest(String uri, Object body) {
+        try {
+            log.info("[POST] uri={} body={}",
+                uri,
+                objectMapper.writeValueAsString(body)
+            );
+        } catch (Exception ignored) {
+            log.info("[POST] uri={} body=[unserializable]", uri);
+        }
+    }
+
+    private void logResponse(Object response) {
+        try {
+            log.info("[RESPONSE] {}",
+                objectMapper.writeValueAsString(response)
+            );
+        } catch (Exception ignored) {
+            log.info("[RESPONSE] [unserializable]");
+        }
+    }
 }

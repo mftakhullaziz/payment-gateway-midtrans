@@ -2,7 +2,7 @@ package com.app.midtrans.domain.email;
 
 public interface EmailGatewayPort {
 
-    void publishEmailRemainderNotification(
+    void sendReminderEmail(
         String email,
         String name,
         String virtualAccountNumber,
@@ -11,7 +11,7 @@ public interface EmailGatewayPort {
         String status
     );
 
-    void publishEmailStatusNotification(
+    void sendStatusEmail(
         String email,
         String name,
         String orderId,

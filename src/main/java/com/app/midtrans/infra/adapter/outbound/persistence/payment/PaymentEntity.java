@@ -13,73 +13,65 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "payments")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "payments")
 public class PaymentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "customer_id")
+    // === Ownership ===
+    @Column(name = "customer_id", nullable = false)
     private Long customerId;
 
-    @Column(name = "order_id")
+    @Column(name = "order_id", nullable = false, unique = true)
     private String orderId;
 
-    @Column(name = "transaction_id")
-    private String transactionId;
+    // === Provider Reference ===
+    @Column(name = "provider", nullable = false)
+    private String provider; // MIDTRANS, XENDIT, etc
 
-    @Column(name = "merchant_id")
-    private String merchantId;
+    @Column(name = "provider_transaction_id")
+    private String providerTransactionId;
 
-    @Column(name = "gross_amount")
-    private Double grossAmount;
+    // === Amount ===
+    @Column(name = "amount", nullable = false)
+    private BigDecimal amount;
 
-    @Column(name = "currency")
+    @Column(name = "currency", length = 3)
     private String currency;
 
-    @Column(name = "transaction_time")
-    private Timestamp transactionTime;
+    // === Status ===
+    @Column(name = "status")
+    private String status; // PENDING, SETTLEMENT, FAILED
 
-    @Column(name = "transaction_status")
-    private String transactionStatus;
+    @Column(name = "payment_time")
+    private Timestamp paymentTime;
 
-    @Column(name = "expiry_time")
-    private Timestamp expiryTime;
+    // === Payment Classification ===
+    @Column(name = "channel")
+    private String channel; // VA, EWALLET, CC
 
-    @Column(name = "fraud_status")
-    private String fraudStatus;
+    @Column(name = "method")
+    private String method; // BCA_VA, MANDIRI_VA, PERMATA_VA
 
-    @Column(name = "payment_type")
-    private String paymentType;
+    // === VA / BILL ===
+    @Column(name = "bank_code")
+    private String bankCode; // bca, bni, bri
 
-    @Column(name = "payment_method")
-    private String paymentMethod;
+    @Column(name = "reference_number")
+    private String referenceNumber; // VA number / bill key
 
-    @Column(name = "payment_va_numbers")
-    private String paymentVaNumbers;
-
-    @Column(name = "total_price")
-    private Double totalPrice;
-
-    @Column(name = "total_tax")
-    private Double totalTax;
-
-    @Column(name = "total_discount")
-    private Double totalDiscount;
-
-    @Column(name = "payment_channel")
-    private String paymentChannel;
-
+    // === Audit ===
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -87,5 +79,4 @@ public class PaymentEntity {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
 }
