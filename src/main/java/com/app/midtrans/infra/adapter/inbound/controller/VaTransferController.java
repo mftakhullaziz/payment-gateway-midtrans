@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1.0/virtual-account")
+@RequestMapping("/api/v1.0/va")
 @RequiredArgsConstructor
 public class VaTransferController {
 
     private final VaPaymentUseCase vaPaymentUseCase;
     private final VaNotifyUseCase vaNotifyUseCase;
 
-    @PostMapping("/payment")
+    @PostMapping("/transfer")
     public ResponseEntity<Response<VaTransferResponse>> transferVa(
         @RequestBody VaTransferRequest request
     ) {
