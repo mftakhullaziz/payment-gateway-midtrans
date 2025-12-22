@@ -1,4 +1,4 @@
-package com.integration.adapter.config;
+package com.app.midtrans.infra.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(0, stringHttpMessageConverter());
+        converters.addFirst(stringHttpMessageConverter());
     }
 
     @Bean
