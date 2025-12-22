@@ -5,6 +5,7 @@ import com.app.midtrans.infra.adapter.inbound.request.VaTransferRequest;
 import com.app.midtrans.infra.adapter.inbound.response.VaTransferResponse;
 import com.app.midtrans.application.usecase.VaPaymentUseCase;
 import com.app.midtrans.infra.adapter.inbound.request.VaTransferNotifyRequest;
+import com.app.midtrans.shared.payload.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,32 +22,20 @@ public class VaTransferController {
     private final VaNotifyUseCase vaNotifyUseCase;
 
     @PostMapping("/payment")
-    public ResponseEntity<VaTransferResponse> createVaPayment(
+    public ResponseEntity<Response<VaTransferResponse>> transferVa(
         @RequestBody VaTransferRequest request
     ) {
         VaTransferResponse response = new VaTransferResponse();
         vaPaymentUseCase.execute(request, response);
-        return ResponseEntity.ok(response);
+        return Response.ok(response);
     }
 
     @PostMapping("/notify")
-    public ResponseEntity<Void> notifyVA(@RequestBody VaTransferNotifyRequest request) {
+    public ResponseEntity<Response<Void>> notifyVa(
+        @RequestBody VaTransferNotifyRequest request
+    ) {
         vaNotifyUseCase.execute(request, null);
-        return ResponseEntity.ok().build();
+        return Response.noContent();
     }
 
-    //@PostMapping("/payment")
-    //    public ResponseEntity<Void> handleVaPaymentCallback(@Valid @RequestBody VaTransferCallbackRequest request) {
-    //        log.info("Received payment notification: {}", JsonUtils.toJson(request));
-    //        // 1. Validate headers (signature verification, timestamp check, etc.)
-    //        // validateSignature(signature, timestamp, requestBody, endpoint, partnerId, externalId);
-    //
-    //        // 2. Process the payment notification
-    //        // Save the payment details, update order/payment status, etc.
-    //        // paymentCallbackUsecase.process(request);
-    //        callbackNotificationUsecase.handleCallbackNotify(request);
-    //
-    //        // 3. Always return 200 OK (Midtrans expects it)
-    //        return ResponseEntity.ok().build();
-    //    }
 }
