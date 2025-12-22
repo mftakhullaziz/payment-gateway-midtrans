@@ -16,11 +16,8 @@ public class PaymentResource {
         private String merchantId;
         private String clientKey;
         private String serverKey;
-        private String paymentUri;
         private Disbursement disbursement;
         private String hostname;
-        private Payment payment;
-
         private CoreApi coreApi;
     }
 
@@ -34,11 +31,6 @@ public class PaymentResource {
         private String rejectPayouts;
         private String detailPayouts;
         private String transactionDetails;
-    }
-
-    @Data
-    public static class Payment {
-        private String charge;
     }
 
     @Data

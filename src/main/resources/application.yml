@@ -40,15 +40,8 @@ application:
         merchant-id: ${MERCHANT_ID}
         client-key: ${CLIENT_KEY}
         server-key: ${SERVER_KEY}
-        # hostname default
         hostname: "https://api.sandbox.midtrans.com"
-        # payment for coreapi midtrans
         core-api:
-          charge: "/v2/charge"
-
-
-        payment-uri: "https://api.sandbox.midtrans.com/v2/charge"
-        payment:
           charge: "/v2/charge"
         disbursement:
           beneficiaries: "/api/v1/beneficiaries"
