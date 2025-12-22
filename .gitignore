@@ -5,7 +5,7 @@ target/
 !**/src/test/**/target/
 
 .mvn
-.github
+#.github
 
 ### STS ###
 .apt_generated
