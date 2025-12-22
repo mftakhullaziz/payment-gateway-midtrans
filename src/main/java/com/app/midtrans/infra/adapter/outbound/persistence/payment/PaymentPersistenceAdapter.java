@@ -19,6 +19,22 @@ public class PaymentPersistenceAdapter implements PaymentPersistencePort {
         paymentJpaRepository.save(paymentEntity);
     }
 
+    @Override
+    public void updatePayment(String transactionStatus, String orderId, String transactionId) {
+        paymentJpaRepository.findByOrderIdAndProviderTransactionId(orderId, transactionId)
+            .ifPresent(payment -> {
+                payment.setStatus(transactionStatus);
+                paymentJpaRepository.save(payment);
+            });
+    }
+
+    @Override
+    public Long findCustomerId(String orderId, String transactionId) {
+        return paymentJpaRepository.findByOrderIdAndProviderTransactionId(orderId, transactionId)
+            .map(PaymentEntity::getCustomerId)
+            .orElse(null);
+    }
+
     private PaymentEntity toPaymentEntity(Payment payment) {
         return PaymentEntity.builder()
             .customerId(payment.getCustomerId())

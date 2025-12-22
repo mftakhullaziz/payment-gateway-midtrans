@@ -1,4 +1,4 @@
-package com.integration.adapter.config;
+package com.app.midtrans.infra.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,11 +8,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class ServerUrlResolver implements HandlerInterceptor {
 
-    private static String detectedUrl;
-
-    public static String getDetectedUrl() {
-        return detectedUrl;
-    }
+    private String detectedUrl;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {

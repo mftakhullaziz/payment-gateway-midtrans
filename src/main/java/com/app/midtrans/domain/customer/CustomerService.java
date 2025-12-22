@@ -37,4 +37,10 @@ public class CustomerService {
         }
     }
 
+    public void customerIdMustBePresent(Long customerId) {
+        if (customerId == null || customerId.equals(0L)) {
+            throw new IllegalArgumentException("Customer id must not be null or empty");
+        }
+    }
+
 }
