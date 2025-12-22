@@ -23,6 +23,12 @@ spring:
         show_sql: true
         storage_engine: innodb  # Set the storage engine to InnoDB
     open-in-view: true
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD} # optional
+      timeout: 2000ms            # optional
 
 springdoc:
   api-docs:
