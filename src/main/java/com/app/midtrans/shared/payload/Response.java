@@ -1,10 +1,7 @@
 package com.app.midtrans.shared.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -25,7 +22,7 @@ public class Response<T> {
     @JsonProperty(value = "data")
     private T data;
 
-    public static <T> ResponseEntity<Response<T>> create(T data) {
+    public static <T> ResponseEntity<@NonNull Response<T>> create(T data) {
         Response<T> response = new Response<>();
         response.setData(data);
         response.setSuccess(data != null);
@@ -34,7 +31,7 @@ public class Response<T> {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    public static <T> ResponseEntity<Response<T>> ok(T data) {
+    public static <T> ResponseEntity<@NonNull Response<T>> ok(T data) {
         Response<T> response = new Response<>();
         response.setData(data);
         response.setSuccess(true);
@@ -43,7 +40,7 @@ public class Response<T> {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public static <T> ResponseEntity<Response<T>> put(T data) {
+    public static <T> ResponseEntity<@NonNull Response<T>> put(T data) {
         Response<T> response = new Response<>();
         response.setData(data);
         response.setSuccess(true);
@@ -52,7 +49,7 @@ public class Response<T> {
         return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
-    public static <T> ResponseEntity<Response<T>> noContent() {
+    public static <T> ResponseEntity<@NonNull Response<T>> noContent() {
         Response<T> response = new Response<>();
         response.setData(null);
         response.setSuccess(true);
