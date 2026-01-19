@@ -1,48 +1,63 @@
-# Payment Gateway Integration – Midtrans
+# Payment Gateway OpenAPI (Gatepay)
 
-A robust Virtual Account (VA) payment gateway integration service built with **Hexagonal Architecture**, enabling seamless bank transfer flows through Midtrans API.
+A provider-agnostic payment gateway service built with **Hexagonal Architecture**.
+
+Gatepay exposes a stable **OpenAPI** for creating payments and handling webhooks, while letting you choose the underlying payment provider (Midtrans, DOKU, Xendit, Faspay, OY Indonesia, etc.) by registering each provider’s credentials.
+
+> Status: **Phase 1 implemented** — `/api/v2/payments` is available with `methodType=VA` routed to Midtrans. More providers/methods are on the roadmap.
 
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Midtrans](https://img.shields.io/badge/Midtrans-API-blue.svg)](https://midtrans.com/)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.x-blue.svg)](https://spec.openapis.org/oas/latest.html)
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Features](#-features)
-- [Architecture Overview](#-architecture-overview)
-- [Project Structure](#-project-structure)
-- [Tech Stack](#-tech-stack)
-- [Getting Started](#-getting-started)
-- [Email Notifications](#-email-notifications)
-- [Testing](#-testing-in-sandbox)
-- [API Documentation](#-api-documentation)
-- [Configuration](#-configuration)
-- [License](#-license)
-
----
-
-## ✨ Features
-
-- 🏦 **Multi-Bank Virtual Account Support** (BCA, BNI, Mandiri, Permata, etc.)
-- 📧 **Automated Email Notifications** (payment reminders & confirmations)
-- 🔔 **Real-time Payment Callbacks** from Midtrans
-- 🔐 **Secure Payment Processing** with transaction validation
-- 📊 **Payment History Tracking** with comprehensive logging
-- 🧩 **Clean Architecture** with clear separation of concerns
-- 🧪 **Sandbox Testing Support** for safe development
+- [Why Gatepay](#why-gatepay)
+- [Key Features](#key-features)
+- [Architecture Overview](#architecture-overview)
+- [Supported Providers](#supported-providers)
+- [API (OpenAPI)](#api-openapi)
+  - [V2 (provider-agnostic)](#v2-provider-agnostic)
+  - [V1 (legacy compatibility)](#v1-legacy-compatibility)
+- [Configuration](#configuration)
+- [Running Locally](#running-locally)
+- [Email Notifications](#email-notifications)
+- [Testing](#testing)
+- [Roadmap](#roadmap)
+- [License](#license)
 
 ---
 
-## 🧱 Architecture Overview
+## Why Gatepay
 
-This application implements **Hexagonal Architecture (Ports & Adapters)**, ensuring maintainability, testability, and framework independence.
+When you integrate payments directly to a provider, switching providers later is painful. Gatepay introduces a stable internal contract (canonical payment model) so client applications:
+
+- don’t need to know provider-specific request/response shapes,
+- can switch providers by changing configuration/credentials,
+- can centralize webhook verification, status mapping, and persistence.
+
+---
+
+## Key Features
+
+- **Provider-agnostic Payment API (OpenAPI)** for creating and tracking payments
+- **Provider routing** (request-level override now, config default supported)
+- **Payment history tracking** with persistence + callback audit trail
+- **Automated email notifications** (reminder & payment status)
+- **Hexagonal Architecture** (clean separation of domain, use cases, adapters)
+
+---
+
+## Architecture Overview
+
+This application implements **Hexagonal Architecture (Ports & Adapters)**.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    INBOUND ADAPTERS                      │
-│         (REST Controllers, Messaging Handlers)           │
+│         (REST Controllers, Webhook Handlers)             │
 └────────────────────┬────────────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────────────┐
@@ -52,415 +67,184 @@ This application implements **Hexagonal Architecture (Ports & Adapters)**, ensur
                      │
 ┌────────────────────▼────────────────────────────────────┐
 │                    DOMAIN LAYER                          │
-│         (Business Logic, Entities, Ports)                │
+│         (Entities, Rules, Ports/Interfaces)              │
 └────────────────────┬────────────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────────────┐
 │                   OUTBOUND ADAPTERS                      │
-│      (Database, External APIs, Email Service)            │
+│     (DB, Provider Clients, Email, Cache, etc.)           │
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Layer Responsibilities
+- **Domain**: canonical payment model + provider-agnostic ports.
+- **Application**: use cases to create payments, handle callbacks, send emails.
+- **Infrastructure**: provider clients (Midtrans/DOKU/Xendit/…), persistence, config.
 
-**Domain Layer** - Core business logic and rules
-- Business entities (Payment, Customer, Bank, etc.)
-- Domain services with business operations
-- Port definitions (interfaces) for external dependencies
-- Framework and infrastructure independent
-
-**Application Layer** - Use case orchestration
-- Coordinates domain services and external ports
-- Defines transaction boundaries
-- Executes business workflows
-- Input validation and error handling
-
-**Infrastructure Layer** - Technical implementation
-- **Inbound**: REST controllers, messaging consumers
-- **Outbound**: Database adapters (JPA), external API clients (Midtrans, Email)
-- Configuration management
-- Framework-specific implementations
-
-**Shared Layer** - Cross-cutting concerns
-- Custom annotations and AOP aspects
-- Common utilities (JSON, Base64, Time, Validation)
-- Exception handling and error responses
-- Enums and constants
+Detailed structure: see [`PROJECT_STRUCTURE.md`](PROJECT_STRUCTURE.md)
 
 ---
 
-## 📂 Project Structure
+## Supported Providers
 
-```
-app-midtrans/
-├── 📱 application/              # Use cases and orchestration
-│   ├── UseCaseExecutor.java
-│   └── usecase/
-│       ├── VaNotifyUseCase.java
-│       └── VaPaymentUseCase.java
-│
-├── 🧠 domain/                   # Core business logic
-│   ├── bank/
-│   ├── bankAccount/
-│   ├── callback/
-│   ├── customer/
-│   ├── email/
-│   └── payment/
-│
-├── 🔌 infra/                    # Infrastructure & adapters
-│   ├── adapter/
-│   │   ├── inbound/            # REST & Messaging
-│   │   └── outbound/           # DB, APIs, Email
-│   └── config/                 # Spring configurations
-│
-└── 🛠️ shared/                   # Common utilities
-    ├── annotation/
-    ├── aop/
-    ├── enums/
-    ├── exception/
-    ├── handler/
-    ├── payload/
-    └── utils/
-```
+Planned provider adapters:
 
-[View detailed structure →](PROJECT_STRUCTURE.md)
+- Midtrans (**implemented for VA in Phase 1**)
+- DOKU
+- Xendit
+- Faspay
+- OY Indonesia
 
 ---
 
-## 🚀 Tech Stack
+## API (OpenAPI)
 
-### Core Technologies
-- **Java 17+** - Programming language
-- **Spring Boot 3.x** - Application framework
-- **Spring Data JPA** - Data persistence
-- **Hibernate** - ORM framework
-- **PostgreSQL/MySQL** - Database (configurable)
+### Swagger / OpenAPI
 
-### External Integrations
-- **Midtrans API** - Payment gateway
-- **Mailtrap** - Email service (development)
-- **SMTP** - Email delivery (production)
-
-### Development Tools
-- **Maven** - Dependency management
-- **Lombok** - Code generation
-- **SpringDoc OpenAPI** - API documentation
-- **SLF4J + Logback** - Logging
-
----
-
-## 🎯 Getting Started
-
-### Prerequisites
-
-- Java 17 or higher
-- Maven 3.6+
-- PostgreSQL/MySQL database
-- Midtrans account (sandbox for testing)
-- Email service credentials
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/app-midtrans.git
-   cd app-midtrans
-   ```
-
-2. **Configure application properties**
-   ```bash
-   cp src/main/resources/application.properties.example src/main/resources/application.properties
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   export MIDTRANS_SERVER_KEY=your_server_key
-   export MIDTRANS_CLIENT_KEY=your_client_key
-   export DATABASE_URL=jdbc:postgresql://localhost:5432/midtrans_db
-   export EMAIL_HOST=sandbox.smtp.mailtrap.io
-   export EMAIL_USERNAME=your_username
-   export EMAIL_PASSWORD=your_password
-   ```
-
-4. **Build the project**
-   ```bash
-   mvn clean install
-   ```
-
-5. **Run the application**
-   ```bash
-   mvn spring-boot:run
-   ```
-
-The application will start on `http://localhost:8080`
-
-### Database Setup
-
-Run the following SQL to create the database:
-
-```sql
-CREATE DATABASE midtrans_db;
-```
-
-Tables will be auto-created by Hibernate on first run (if `spring.jpa.hibernate.ddl-auto=update`).
-
----
-
-## 📧 Email Notifications
-
-The system sends automated email notifications at key points in the payment lifecycle.
-
-### Payment Reminder Email
-
-Sent when payment is pending or approaching due time, containing payment instructions and virtual account details.
-
-![Remainder Email](docs/remainder-payment-email.png)
-
-### Payment Success Email
-
-Sent immediately after successful payment confirmation, including transaction summary and order details.
-
-![Payment Success](docs/payment-successfully-email.png)
-
-### Email Configuration
-
-Customize email templates in `src/main/resources/templates/email/`:
-- `reminder-email.html` - Payment reminder template
-- `success-email.html` - Payment confirmation template
-
-Templates support dynamic variables like `${customerName}`, `${amount}`, `${vaNumber}`, etc.
-
----
-
-## 🧪 Testing in Sandbox
-
-Midtrans provides a comprehensive sandbox environment for testing all payment scenarios without real money.
-
-### How to Test VA Payments
-
-1. Create a payment request via API
-2. Use the test VA number provided by Midtrans
-3. Simulate payment using Midtrans Simulator
-
-### Test Virtual Account Numbers
-
-| Bank    | VA Number Format      | Example           |
-|---------|-----------------------|-------------------|
-| BCA     | 5XXXX + order_id      | 500012345678      |
-| BNI     | 8XXXX + order_id      | 800012345678      |
-| Mandiri | 7XXXX + order_id      | 700012345678      |
-| Permata | 10-digit number       | 8562000001234567  |
-
-### Testing Resources
-
-- 📖 [Midtrans Sandbox Testing Guide](https://docs.midtrans.com/docs/testing-payment-on-sandbox)
-- 🏦 [Bank Transfer Test Scenarios](https://docs.midtrans.com/docs/bank-transfer-testing)
-- 💳 [Virtual Account Simulator](https://simulator.sandbox.midtrans.com/)
-
----
-
-## 📚 API Documentation
-
-### Interactive API Docs
-
-Once the application is running, access the interactive API documentation:
+Once the app is running:
 
 - **Swagger UI**: `http://localhost:8080/swagger-ui.html`
 - **OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
 
-### Key Endpoints
+### V2 (provider-agnostic)
 
-#### Create Virtual Account Payment
-```http
-POST /api/v1.0/va/transfer
-Content-Type: application/json
+#### Create payment
 
+`POST /api/v2/payments`
+
+**Phase 1 contract**
+
+- `methodType=VA` ✅ implemented via Midtrans adapter
+- `methodType=EWALLET` 🚧 accepted by API, provider adapter implementation pending
+
+Request (VA example):
+
+```json
 {
-  "customerId": "12345",
-  "bankCode": "bca",
-  "amount": 100000,
-  "orderId": "ORDER-2024-001",
-  "itemDetails": [...]
+  "provider": "MIDTRANS",
+  "customerId": 1,
+  "orderId": "ORDER-2026-001",
+  "totalAmount": 100000,
+  "methodType": "VA",
+  "channel": "bca"
 }
 ```
 
-#### Payment Notification Callback
-```http
-POST /api/v1.0/va/notify
-Content-Type: application/json
+Notes:
+- `provider` is optional. If omitted, Gatepay uses `gatepay.payment.default-provider`.
 
+Response (example):
+
+```json
 {
-  "transaction_id": "...",
-  "order_id": "...",
-  "transaction_status": "settlement",
-  ...
+  "data": {
+    "customerId": 1,
+    "orderId": "ORDER-2026-001",
+    "provider": "MIDTRANS",
+    "transactionId": "...",
+    "status": "pending",
+    "paymentType": "bank_transfer",
+    "bank": "bca",
+    "virtualAccountNumber": "1234567890",
+    "transactionTime": "2026-01-19 10:00:00",
+    "expiredTime": "2026-01-20 10:00:00"
+  }
 }
 ```
 
-### Midtrans API Reference
+#### Webhooks
 
-For complete API capabilities and integration guidelines:
-- 📘 [Core API Overview](https://docs.midtrans.com/reference/core-api-overview)
-- 🔐 [Authentication](https://docs.midtrans.com/docs/api-authorization-and-headers)
-- 🏦 [Bank Transfer API](https://docs.midtrans.com/docs/bank-transfer)
+`POST /api/v2/webhooks/{provider}`
 
----
+Phase 1:
+- `POST /api/v2/webhooks/MIDTRANS` ✅ (payload shape follows Midtrans VA notification DTO)
 
-## ⚙️ Configuration
 
-### Application Properties
+### V1 (legacy compatibility)
 
-Key configuration properties:
+Current endpoints are Midtrans-focused and remain available during migration:
 
-```properties
-# Server
-server.port=8080
-
-# Database
-spring.datasource.url=${DATABASE_URL}
-spring.datasource.username=${DB_USERNAME}
-spring.datasource.password=${DB_PASSWORD}
-spring.jpa.hibernate.ddl-auto=update
-
-# Midtrans
-midtrans.server.key=${MIDTRANS_SERVER_KEY}
-midtrans.client.key=${MIDTRANS_CLIENT_KEY}
-midtrans.is.production=false
-midtrans.api.url=https://api.sandbox.midtrans.com/v2
-
-# Email
-spring.mail.host=${EMAIL_HOST}
-spring.mail.port=587
-spring.mail.username=${EMAIL_USERNAME}
-spring.mail.password=${EMAIL_PASSWORD}
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
-```
-
-### Environment Variables
-
-| Variable              | Description                    | Required |
-|-----------------------|--------------------------------|----------|
-| `MIDTRANS_SERVER_KEY` | Midtrans server key            | Yes      |
-| `MIDTRANS_CLIENT_KEY` | Midtrans client key            | Yes      |
-| `DATABASE_URL`        | Database connection URL        | Yes      |
-| `DB_USERNAME`         | Database username              | Yes      |
-| `DB_PASSWORD`         | Database password              | Yes      |
-| `EMAIL_HOST`          | SMTP host                      | Yes      |
-| `EMAIL_USERNAME`      | SMTP username                  | Yes      |
-| `EMAIL_PASSWORD`      | SMTP password                  | Yes      |
+- `POST /api/v1.0/va/transfer` — create VA payment
+- `POST /api/v1.0/va/notify` — Midtrans callback
 
 ---
 
-## 🔄 Payment Flow Example
+## Configuration
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Controller
-    participant UseCase
-    participant Domain
-    participant Midtrans
-    participant Database
-    participant Email
+Gatepay uses `src/main/resources/application.yml` for configuration.
 
-    Client->>Controller: POST /api/v1.0/va/transfer
-    Controller->>UseCase: Execute VaPaymentUseCase
-    UseCase->>Domain: Validate Customer & Bank
-    Domain-->>UseCase: Validation OK
-    UseCase->>Midtrans: Create VA Payment
-    Midtrans-->>UseCase: VA Number & Details
-    UseCase->>Database: Save Payment Record
-    UseCase->>Email: Send Reminder Email
-    UseCase-->>Controller: Payment Response
-    Controller-->>Client: 200 OK + VA Details
-    
-    Note over Midtrans,Database: Customer makes payment
-    
-    Midtrans->>Controller: POST /api/v1.0/va/notify (callback)
-    Controller->>UseCase: Execute VaNotifyUseCase
-    UseCase->>Database: Update Payment Status
-    UseCase->>Email: Send Success Email
-    UseCase-->>Controller: Notification Processed
-    Controller-->>Midtrans: 200 OK
-```
+### Provider credentials (Phase 1: env-based)
+
+Default provider:
+
+- `PAYMENT_DEFAULT_PROVIDER` (default: `MIDTRANS`)
+
+Midtrans credentials:
+
+- `MERCHANT_ID`
+- `CLIENT_KEY`
+- `SERVER_KEY`
+- `MIDTRANS_HOSTNAME` (optional; default: `https://api.sandbox.midtrans.com`)
+
+> Legacy config under `application.external-service.payment-gateway.midtrans` is still present for backward compatibility.
 
 ---
 
-## 🧪 Testing
+## Running Locally
 
-### Unit Tests
+Prerequisites:
+
+- Java 17+
+- Maven 3.6+
+- MySQL (based on default driver) and Redis (optional)
+
+Build and run:
 
 ```bash
-mvn test
+./mvnw clean test
+./mvnw spring-boot:run
 ```
 
-### Integration Tests
+---
+
+## Email Notifications
+
+Gatepay sends automated emails at key points in the payment lifecycle.
+
+### Payment Reminder Email
+
+![Remainder Email](docs/remainder-payment-email.png)
+
+### Payment Status Email
+
+![Payment Success](docs/payment-successfully-email.png)
+
+Templates:
+
+- `src/main/resources/templates/payment-reminder-notification.html`
+- `src/main/resources/templates/payment-status-notification.html`
+
+---
+
+## Testing
 
 ```bash
-mvn verify
+./mvnw test
 ```
 
-### Test Coverage
+---
 
-```bash
-mvn clean test jacoco:report
-```
+## Roadmap
 
-View coverage report at `target/site/jacoco/index.html`
+- [x] Add `/api/v2/payments` unified endpoint (Phase 1: VA)
+- [ ] Add webhook v2 endpoint(s) + signature verification framework
+- [ ] Add canonical `PaymentIntent` and normalized status model
+- [ ] Add credential registry (DB) with encryption-at-rest
+- [ ] Add provider routing rules (merchant default / method-based)
+- [ ] Add adapters: Xendit, DOKU, Faspay, OY Indonesia
+- [ ] Contract tests for OpenAPI + regression tests for v1
 
 ---
 
-## 📝 Contributing
+## License
 
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 🐛 Known Issues & Roadmap
-
-### Current Limitations
-- Email service limited to Mailtrap in development
-- Single currency support (IDR only)
-- No retry mechanism for failed callbacks
-
-### Planned Features
-- [ ] Multi-currency support
-- [ ] Payment retry mechanism
-- [ ] Webhook signature verification
-- [ ] Admin dashboard
-- [ ] Payment analytics
-- [ ] Refund support
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🤝 Support
-
-For questions or issues:
-- 📧 Email: support@yourdomain.com
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/app-midtrans/issues)
-- 📖 Docs: [Wiki](https://github.com/yourusername/app-midtrans/wiki)
-
----
-
-## 🙏 Acknowledgments
-
-- [Midtrans](https://midtrans.com/) for the payment gateway platform
-- [Spring Framework](https://spring.io/) for the excellent ecosystem
-- The clean architecture community for architectural patterns
-
----
-
-**Made with ❤️ by Your Team**
+This project is licensed under the MIT License. See [`LICENSE`](./LICENSE).

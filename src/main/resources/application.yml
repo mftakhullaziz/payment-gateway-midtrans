@@ -38,9 +38,29 @@ springdoc:
     path: /swagger-ui.html
     disable-swagger-default-url: true
 
+# New, provider-agnostic config namespace (Phase 1: env-based credentials)
+#
+# This is the preferred config going forward. Legacy config under
+# application.external-service.payment-gateway.midtrans is kept for now.
+#
+# Supported providers (enum): MIDTRANS, DOKU, XENDIT, FASPAY, OY
+# Active provider can be overridden per request in v2 API.
+
+gatepay:
+  payment:
+    default-provider: ${PAYMENT_DEFAULT_PROVIDER:MIDTRANS}
+    providers:
+      midtrans:
+        merchant-id: ${MERCHANT_ID}
+        client-key: ${CLIENT_KEY}
+        server-key: ${SERVER_KEY}
+        hostname: ${MIDTRANS_HOSTNAME:https://api.sandbox.midtrans.com}
+        core-api:
+          charge: /v2/charge
+
 application:
   external-service:
-    # configure for payment gateway
+    # configure for payment gateway (legacy)
     payment-gateway:
       midtrans:
         merchant-id: ${MERCHANT_ID}
