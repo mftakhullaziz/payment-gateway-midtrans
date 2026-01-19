@@ -19,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-public class VaNotifyUseCase extends UseCaseExecutor<VaTransferNotifyRequest, Void> {
+public class VaNotifyUseCase
+    extends UseCaseExecutor<VaTransferNotifyRequest, Void> {
 
     private final ObjectMapper objectMapper;
 

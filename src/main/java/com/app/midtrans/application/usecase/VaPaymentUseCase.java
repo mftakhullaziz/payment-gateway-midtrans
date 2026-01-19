@@ -58,7 +58,7 @@ public class VaPaymentUseCase
 
         // if a bank still eligible, now create va payment to midtrans
         Payment paymentRequest = toPaymentRequest(input, bank, vaChannel);
-        Payment payment = paymentGatewayPort.createPaymentMidtrans(paymentRequest);
+        Payment payment = paymentGatewayPort.executeTransferVA(paymentRequest);
         paymentService.validateForSave(payment);
         paymentPersistencePort.savePayment(payment);
 

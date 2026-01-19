@@ -23,7 +23,7 @@ public class MidtransGatewayAdapter implements PaymentGatewayPort {
     private final PaymentResource paymentResource;
 
     @Override
-    public Payment createPaymentMidtrans(Payment payment) {
+    public Payment executeTransferVA(Payment payment) {
         String serverKeyEncode = Base64Utils.encodeToBase64(paymentResource.getMidtrans().getServerKey());
         String vaPaymentURI = paymentResource.getMidtrans().getHostname() +
             paymentResource.getMidtrans().getCoreApi().getCharge();
@@ -43,6 +43,11 @@ public class MidtransGatewayAdapter implements PaymentGatewayPort {
         Payment paymentResponse = toPayment(response);
         paymentResponse.setCustomerId(payment.getCustomerId());
         return paymentResponse;
+    }
+
+    @Override
+    public Payment executeTransferEWallet(Payment payment) {
+        return null;
     }
 
     private Payment.PaymentBuilder basePayment(MidtransVAResponse response) {

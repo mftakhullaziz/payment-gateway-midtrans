@@ -1,5 +1,6 @@
 package com.app.midtrans.domain.payment;
 
 public interface PaymentGatewayPort {
-    Payment createPaymentMidtrans(Payment payment);
+    Payment executeTransferVA(Payment payment);
+    Payment executeTransferEWallet(Payment payment);
 }
